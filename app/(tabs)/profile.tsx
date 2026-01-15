@@ -118,10 +118,18 @@ export default function ProfileScreen() {
         <Text style={styles.cardTitle}>Account Information</Text>
 
         <View style={styles.infoRow}>
-          <Ionicons name="person-outline" size={20} color={colors.textSecondary} />
+          <Ionicons name="mail-outline" size={20} color={colors.textSecondary} />
           <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Username</Text>
-            <Text style={styles.infoValue}>{user?.username || 'N/A'}</Text>
+            <Text style={styles.infoLabel}>Email</Text>
+            <Text style={styles.infoValue}>{user?.email || 'N/A'}</Text>
+          </View>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Ionicons name="shield-outline" size={20} color={colors.textSecondary} />
+          <View style={styles.infoContent}>
+            <Text style={styles.infoLabel}>Role</Text>
+            <Text style={[styles.infoValue, { textTransform: 'capitalize' }]}>{user?.role || 'N/A'}</Text>
           </View>
         </View>
 

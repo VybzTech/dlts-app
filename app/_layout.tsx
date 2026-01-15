@@ -5,7 +5,7 @@ import {
   useSegments,
 } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "react-native-reanimated";
 import { useAuthStore } from "../src/store/authStore";
@@ -16,20 +16,34 @@ function useProtectedRoute() {
   const segments = useSegments();
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
+  const [hasNavigated, setHasNavigated] = useState(false);
 
   const rootNavigation = useRootNavigationState();
+
   useEffect(() => {
-    if (!rootNavigation?.key) return; // not mounted yet
-    if (segments.length === 0) return;
+    // Wait for navigation to be ready
+    if (!rootNavigation?.key) return;
+
     const inAuthGroup = segments[0] === "(auth)";
+
+    // Prevent multiple navigations
+    if (hasNavigated) return;
+
     if (!isAuthenticated && !inAuthGroup) {
       // Redirect to login if not authenticated
+      setHasNavigated(true);
       router.replace("/(auth)/login");
     } else if (isAuthenticated && inAuthGroup) {
       // Redirect to home if authenticated and on auth screen
+      setHasNavigated(true);
       router.replace("/(tabs)");
     }
   }, [isAuthenticated, segments, rootNavigation?.key]);
+
+  // Reset navigation flag when auth state changes
+  useEffect(() => {
+    setHasNavigated(false);
+  }, [isAuthenticated]);
 }
 
 export default function RootLayout() {
@@ -58,7 +72,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
-          name="delivery/[id]"
+          name="delivery/[id]/index"
           options={{
             headerShown: true,
             title: "Delivery Details",

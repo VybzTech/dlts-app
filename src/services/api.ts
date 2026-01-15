@@ -3,6 +3,46 @@ import type { Delivery, User, PODData, DeliveryStatus, ApiResponse, LoginRespons
 // Simulated delay for mock API calls
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Mock Users Database - 3 user profiles
+const mockUsers: { email: string; password: string; user: User }[] = [
+  {
+    email: 'beta.courier@lirs.net',
+    password: 'password123',
+    user: {
+      id: '1',
+      email: 'beta.courier@lirs.net',
+      fullName: 'Beta Courier',
+      staffId: 'CR001',
+      unit: 'DISPATCH',
+      role: 'courier',
+    },
+  },
+  {
+    email: 'kunle.admin@lirs.net',
+    password: 'password123',
+    user: {
+      id: '2',
+      email: 'kunle.admin@lirs.net',
+      fullName: 'Kunle Adeyemi',
+      staffId: 'AD001',
+      unit: 'ADMIN',
+      role: 'admin',
+    },
+  },
+  {
+    email: 'jeremiah.it@lirs.net',
+    password: 'password123',
+    user: {
+      id: '3',
+      email: 'jeremiah.it@lirs.net',
+      fullName: 'Jeremiah Okonkwo',
+      staffId: 'IT001',
+      unit: 'IT',
+      role: 'unit',
+    },
+  },
+];
+
 // Mock Deliveries Data
 export const mockDeliveries: Delivery[] = [
   {
@@ -133,22 +173,19 @@ export const mockDeliveries: Delivery[] = [
 // Mock API Service
 export const api = {
   // Authentication
-  login: async (username: string, password: string): Promise<LoginResponse> => {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
     await delay(1000);
 
-    // Simple mock validation
-    if (username.length >= 3 && password.length >= 4) {
-      return {
-        user: {
-          id: '1',
-          username,
-          fullName: 'Test Courier',
-          staffId: 'CR001',
-          unit: 'DISPATCH',
-        },
-      };
+    // Find user by email (case-insensitive)
+    const foundUser = mockUsers.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    );
+
+    if (foundUser) {
+      return { user: foundUser.user };
     }
-    throw new Error('Invalid username or password');
+
+    throw new Error('Invalid email or password');
   },
 
   // Deliveries

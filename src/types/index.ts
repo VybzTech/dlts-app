@@ -45,12 +45,16 @@ export interface PODData {
   };
 }
 
+// User Roles
+export type UserRole = 'courier' | 'admin' | 'unit';
+
 export interface User {
   id: string;
-  username: string;
+  email: string;
   fullName: string;
   staffId: string;
   unit: string;
+  role: UserRole;
 }
 
 // API Response Types

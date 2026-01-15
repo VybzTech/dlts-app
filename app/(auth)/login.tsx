@@ -1,205 +1,223 @@
-import React, { useState } from 'react';
+import { colors } from "@/src/theme/colors";
+import { loginStyles } from "@/styles/login";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
-  View,
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  Alert,
-  Image,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '../../src/store/authStore';
-import { api } from '../../src/services/api';
-import { colors } from '../../src/theme/colors';
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../../src/store/authStore";
+import { LinearGradient } from "expo-linear-gradient";
+import { api } from "@/src/services/api";
+import { useRouter } from "expo-router";
+
+interface FormErrors {
+  email?: string;
+  password?: string;
+  general?: string;
+}
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
+  const router = useRouter();
   const { login } = useAuthStore();
 
-  const handleLogin = async () => {
-    if (!username.trim()) {
-      Alert.alert('Error', 'Please enter your username');
-      return;
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!email.includes("@")) {
+      newErrors.email = "Please enter a valid email";
     }
+
     if (!password.trim()) {
-      Alert.alert('Error', 'Please enter your password');
+      newErrors.password = "Password is required";
+    } else if (password.length < 4) {
+      newErrors.password = "Password must be at least 4 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const clearFieldError = (field: keyof FormErrors) => {
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined, general: undefined }));
+    }
+  };
+
+  const handleLogin = async () => {
+    // Clear general error on new attempt
+    setErrors((prev) => ({ ...prev, general: undefined }));
+
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await api.login(username.trim(), password);
+      const response = await api.login(email.trim(), password);
       login(response.user);
+      // Navigate to tabs after successful login
+      router.replace("/(tabs)");
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid credentials');
+      setErrors({ general: error.message || "Invalid credentials" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={loginStyles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={loginStyles.keyboardView}
       >
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Ionicons name="mail" size={60} color={colors.primary} />
-          </View>
-          <Text style={styles.title}>DLTS Courier</Text>
-          <Text style={styles.subtitle}>Delivery Letter Tracking System</Text>
+        <View style={loginStyles.header}>
+          <Image
+            source={require("@/assets/logo/lirs-logo.png")}
+            style={{ width: 90, height: 90 }}
+          />
+          <Text style={loginStyles.title}>LIRS Courier</Text>
+          <Text style={loginStyles.subtitle}>
+            Document & Logistics Tracking System
+          </Text>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              placeholderTextColor={colors.textSecondary}
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+        <View style={loginStyles.form}>
+          {/* General Error Message */}
+          {errors.general && (
+            <View style={[loginStyles.errorContainer, { justifyContent: "center", marginBottom: 12 }]}>
+              <Ionicons name="alert-circle" size={16} color={colors.danger} />
+              <Text style={loginStyles.errorText}>{errors.general}</Text>
+            </View>
+          )}
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+          {/* Email Input */}
+          <View style={loginStyles.inputWrapper}>
+            {errors.email && (
+              <View style={loginStyles.errorContainer}>
+                <Ionicons name="alert-circle" size={14} color={colors.danger} />
+                <Text style={loginStyles.errorText}>{errors.email}</Text>
+              </View>
+            )}
+            <View
+              style={[
+                loginStyles.inputContainer,
+                errors.email && loginStyles.inputContainerError,
+              ]}
+            >
               <Ionicons
-                name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                name="mail-outline"
                 size={20}
-                color={colors.textSecondary}
+                color={errors.email ? colors.danger : colors.textSecondary}
+                style={loginStyles.inputIcon}
               />
-            </TouchableOpacity>
+              <TextInput
+                style={loginStyles.input}
+                placeholder="Email"
+                placeholderTextColor={colors.textSecondary}
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  clearFieldError("email");
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+              />
+            </View>
           </View>
 
+          {/* Password Input */}
+          <View style={loginStyles.inputWrapper}>
+            {errors.password && (
+              <View style={loginStyles.errorContainer}>
+                <Ionicons name="alert-circle" size={14} color={colors.danger} />
+                <Text style={loginStyles.errorText}>{errors.password}</Text>
+              </View>
+            )}
+            <View
+              style={[
+                loginStyles.inputContainer,
+                errors.password && loginStyles.inputContainerError,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color={errors.password ? colors.danger : colors.textSecondary}
+                style={loginStyles.inputIcon}
+              />
+              <TextInput
+                style={loginStyles.input}
+                placeholder="Password"
+                placeholderTextColor={colors.textSecondary}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  clearFieldError("password");
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={loginStyles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Login Button */}
           <TouchableOpacity
-            style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
             onPress={handleLogin}
             disabled={isLoading}
+            style={{ marginTop: 12 }}
           >
-            {isLoading ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
-              <Text style={styles.loginButtonText}>Sign In</Text>
-            )}
+            <LinearGradient
+              colors={["#15a449", colors.primaryLight]}
+              start={{ x: 0.35, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                loginStyles.loginButton,
+                isLoading && loginStyles.loginButtonDisabled,
+              ]}
+            >
+              {isLoading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <Text style={loginStyles.loginButtonText}>Log In</Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>LIRS - Document & Logistics Tracking System</Text>
-          <Text style={styles.versionText}>Version 1.0.0</Text>
+        <View style={loginStyles.footer}>
+          <Text style={loginStyles.footerText}>
+            LIRS - DLTS
+          </Text>
+          <Text style={loginStyles.versionText}>Version 1.0.0</Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  keyboardView: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logoContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  form: {
-    gap: 16,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: 16,
-    height: 56,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  loginButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 60,
-  },
-  footerText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  versionText: {
-    fontSize: 11,
-    color: colors.textLight,
-    marginTop: 4,
-  },
-});
