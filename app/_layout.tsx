@@ -1,24 +1,91 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import "react-native-reanimated";
+import { useAuthStore } from "../src/store/authStore";
+import { colors } from "../src/theme/colors";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// Auth protection hook
+function useProtectedRoute() {
+  const segments = useSegments();
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+  const rootNavigation = useRootNavigationState();
+  useEffect(() => {
+    if (!rootNavigation?.key) return; // not mounted yet
+    if (segments.length === 0) return;
+    const inAuthGroup = segments[0] === "(auth)";
+    if (!isAuthenticated && !inAuthGroup) {
+      // Redirect to login if not authenticated
+      router.replace("/(auth)/login");
+    } else if (isAuthenticated && inAuthGroup) {
+      // Redirect to home if authenticated and on auth screen
+      router.replace("/(tabs)");
+    }
+  }, [isAuthenticated, segments, rootNavigation?.key]);
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { isLoading } = useAuthStore();
+
+  useProtectedRoute();
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="delivery/[id]"
+          options={{
+            headerShown: true,
+            title: "Delivery Details",
+            headerStyle: { backgroundColor: colors.primary },
+            headerTintColor: colors.white,
+          }}
+        />
+        <Stack.Screen
+          name="delivery/[id]/navigate"
+          options={{
+            headerShown: true,
+            title: "Navigation",
+            headerStyle: { backgroundColor: colors.primary },
+            headerTintColor: colors.white,
+          }}
+        />
+        <Stack.Screen
+          name="delivery/[id]/pod"
+          options={{
+            headerShown: true,
+            title: "Proof of Delivery",
+            headerStyle: { backgroundColor: colors.primary },
+            headerTintColor: colors.white,
+          }}
+        />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }
