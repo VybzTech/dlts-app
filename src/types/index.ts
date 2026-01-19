@@ -1,27 +1,32 @@
 // Delivery Status Types
 export type DeliveryStatus =
-  | 'assigned'
-  | 'picked_up'
-  | 'en_route'
-  | 'arrived'
-  | 'delivered'
-  | 'returned';
+  | "assigned"
+  | "picked_up"
+  | "en_route"
+  | "arrived"
+  | "delivered"
+  | "returned";
 
-export type Priority = 'MINIMAL' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type Priority = "NORMAL" | "URGENT";
 
 // Core Data Types
 export interface Delivery {
   id: string;
   scheduleId: string;
   companyName: string;
+  title: string;
   destination: string;
   lga: string;
+  liabilityYear: string;
+  status: DeliveryStatus;
+  priority: Priority;
+  liabilityAmount: number;
+  submittedAt: string;
   contactPerson?: string;
   contactPhone?: string;
-  letterCount: number;
-  priority: Priority;
-  status: DeliveryStatus;
+  assignedCourierId?: string;
   assignedAt: string;
+  pickedUpAt?: string;
   completedAt?: string;
   coordinates?: {
     latitude: number;
@@ -46,7 +51,7 @@ export interface PODData {
 }
 
 // User Roles
-export type UserRole = 'courier' | 'admin' | 'unit';
+export type UserRole = "courier" | "admin" | "unit";
 
 export interface User {
   id: string;
@@ -70,4 +75,9 @@ export interface LoginResponse {
 }
 
 // Filter Types
-export type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed';
+export type StatusFilter =
+  | "all"
+  | "returned"
+  | "pending"
+  | "in_progress"
+  | "completed";

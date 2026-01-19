@@ -51,6 +51,18 @@ export default function DashboardScreen() {
       setLoading(false);
     }
   }, [setDeliveries, setLoading]);
+  
+  const loadCourierDeliveries = useCallback(async (id:string) => {
+    setLoading(true);
+    try {
+      const data = await api.getCourierDeliveries(id);
+      setDeliveries(data);
+    } catch (error) {
+      console.error('Failed to load deliveries:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [setDeliveries, setLoading]);
 
   useEffect(() => {
     loadDeliveries();
@@ -78,46 +90,47 @@ export default function DashboardScreen() {
     return <LoadingSpinner fullScreen message="Loading deliveries..." />;
   }
 
+  console.log(deliveries)
   return (
-    <View style={styles.container}>
+    <View style={dashboardStyles.container}>
       {/* Stats Summary */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
+      <View style={dashboardStyles.statsContainer}>
+        <View style={dashboardStyles.statCard}>
           <Ionicons name="time-outline" size={24} color={colors.warning} />
-          <Text style={styles.statNumber}>{pendingCount}</Text>
-          <Text style={styles.statLabel}>Pending</Text>
+          <Text style={dashboardStyles.statNumber}>{pendingCount}</Text>
+          <Text style={dashboardStyles.statLabel}>Pending</Text>
         </View>
-        <View style={styles.statCard}>
+        <View style={dashboardStyles.statCard}>
           <Ionicons name="checkmark-circle-outline" size={24} color={colors.success} />
-          <Text style={styles.statNumber}>
+          <Text style={dashboardStyles.statNumber}>
             {deliveries.filter((d) => d.status === 'delivered').length}
           </Text>
-          <Text style={styles.statLabel}>Delivered</Text>
+          <Text style={dashboardStyles.statLabel}>Delivered</Text>
         </View>
-        <View style={styles.statCard}>
+        <View style={dashboardStyles.statCard}>
           <Ionicons name="return-down-back-outline" size={24} color={colors.danger} />
-          <Text style={styles.statNumber}>
+          <Text style={dashboardStyles.statNumber}>
             {deliveries.filter((d) => d.status === 'returned').length}
           </Text>
-          <Text style={styles.statLabel}>Returned</Text>
+          <Text style={dashboardStyles.statLabel}>Returned</Text>
         </View>
       </View>
 
       {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
+      <View style={dashboardStyles.filterContainer}>
         {filterOptions.map((option) => (
           <TouchableOpacity
             key={option.key}
             style={[
-              styles.filterTab,
-              filter === option.key && styles.filterTabActive,
+              dashboardStyles.filterTab,
+              filter === option.key && dashboardStyles.filterTabActive,
             ]}
             onPress={() => setFilter(option.key)}
           >
             <Text
               style={[
-                styles.filterTabText,
-                filter === option.key && styles.filterTabTextActive,
+                dashboardStyles.filterTabText,
+                filter === option.key && dashboardStyles.filterTabTextActive,
               ]}
             >
               {option.label}
@@ -133,7 +146,7 @@ export default function DashboardScreen() {
         renderItem={({ item }) => (
           <DeliveryCard delivery={item} onPress={() => handleDeliveryPress(item)} />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={dashboardStyles.listContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -144,7 +157,7 @@ export default function DashboardScreen() {
         }
         ListEmptyComponent={
           <EmptyState
-            icon="inbox-outline"
+            icon="mail"
             title="No Deliveries"
             message={
               filter === 'all'
@@ -159,7 +172,7 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const dashboardStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,

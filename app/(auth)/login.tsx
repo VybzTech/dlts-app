@@ -186,7 +186,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
           {/* Login Button */}
           <TouchableOpacity
             onPress={handleLogin}
@@ -210,7 +209,6 @@ export default function LoginScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
         <View style={loginStyles.footer}>
           <Text style={loginStyles.footerText}>
             LIRS - DLTS

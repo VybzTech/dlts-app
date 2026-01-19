@@ -39,12 +39,12 @@ Build a **React Native mobile app using Expo** for courier personnel to manage l
 
 ## MVP Features (Minimal Scope)
 
-### 1. Authentication
+### 1. Authentication ✅
 - Simple login screen (username/password)
 - Mock auth - store user in Zustand + AsyncStorage
 - Auto-login if session exists
 
-### 2. Dashboard (Home)
+### 2. Dashboard (Home) 
 - List of assigned deliveries for the day
 - Each card shows: Company Name, Address, LGA, Priority badge
 - Pull-to-refresh

@@ -10,14 +10,6 @@ DLTS-APP (Delivery Letter Tracking System) is a React Native mobile application 
 
 ## Development Commands
 
-```bash
-npm start               # Start Expo development server
-npm run android         # Run on Android emulator/device
-npm run ios             # Run on iOS simulator/device
-npm run web             # Run web version
-npm run lint            # Run ESLint
-```
-
 ## Architecture
 
 ### Directory Structure

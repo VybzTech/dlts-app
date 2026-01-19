@@ -1,4 +1,12 @@
-import type { Delivery, User, PODData, DeliveryStatus, ApiResponse, LoginResponse } from '../types';
+import type {
+  ApiResponse,
+  Delivery,
+  DeliveryStatus,
+  LoginResponse,
+  PODData,
+  Priority,
+  User,
+} from "../types";
 
 // Simulated delay for mock API calls
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -6,169 +14,317 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Mock Users Database - 3 user profiles
 const mockUsers: { email: string; password: string; user: User }[] = [
   {
-    email: 'beta.courier@lirs.net',
-    password: 'password123',
+    email: "beta.courier@lirs.net",
+    password: "password123",
     user: {
-      id: '1',
-      email: 'beta.courier@lirs.net',
-      fullName: 'Beta Courier',
-      staffId: 'CR001',
-      unit: 'DISPATCH',
-      role: 'courier',
+      id: "1",
+      email: "beta.courier@lirs.net",
+      fullName: "Beta Courier",
+      staffId: "CR001",
+      unit: "DISPATCH",
+      role: "courier",
     },
   },
   {
-    email: 'kunle.admin@lirs.net',
-    password: 'password123',
+    email: "rasheed.admin@lirs.net",
+    password: "password123",
     user: {
-      id: '2',
-      email: 'kunle.admin@lirs.net',
-      fullName: 'Kunle Adeyemi',
-      staffId: 'AD001',
-      unit: 'ADMIN',
-      role: 'admin',
+      id: "2",
+      email: "rasheed.admin@lirs.net",
+      fullName: "Rasheed Adeyemi",
+      staffId: "AD001",
+      unit: "ADMIN",
+      role: "admin",
     },
   },
   {
-    email: 'jeremiah.it@lirs.net',
-    password: 'password123',
+    email: "david.it@lirs.net",
+    password: "password123",
     user: {
-      id: '3',
-      email: 'jeremiah.it@lirs.net',
-      fullName: 'Jeremiah Okonkwo',
-      staffId: 'IT001',
-      unit: 'IT',
-      role: 'unit',
+      id: "3",
+      email: "david.it@lirs.net",
+      fullName: "David Okonkwo",
+      staffId: "IT001",
+      unit: "IT",
+      role: "unit",
     },
   },
 ];
 
-// Mock Deliveries Data
-export const mockDeliveries: Delivery[] = [
-  {
-    id: '1',
-    scheduleId: 'SCH-2024-001',
-    companyName: 'Nestle Nigeria PLC',
-    destination: '29, Abisogun Street, Ikeja, Lagos',
-    lga: 'IKEJA',
-    contactPerson: 'Mr. Johnson Adeyemi',
-    contactPhone: '08012345678',
-    letterCount: 3,
-    priority: 'HIGH',
-    status: 'assigned',
-    assignedAt: new Date().toISOString(),
-    coordinates: { latitude: 6.6018, longitude: 3.3515 },
-  },
-  {
-    id: '2',
-    scheduleId: 'SCH-2024-002',
-    companyName: 'Unilever Nigeria Limited',
-    destination: '21, Mercy Eneli Street, Surulere, Lagos',
-    lga: 'SURULERE',
-    contactPerson: 'Mrs. Funke Okonkwo',
-    contactPhone: '08023456789',
-    letterCount: 5,
-    priority: 'MEDIUM',
-    status: 'assigned',
-    assignedAt: new Date().toISOString(),
-    coordinates: { latitude: 6.4969, longitude: 3.3562 },
-  },
-  {
-    id: '3',
-    scheduleId: 'SCH-2024-003',
-    companyName: 'First Bank of Nigeria',
-    destination: '35, Marina Road, Lagos Island',
-    lga: 'LAGOS ISLAND',
-    contactPerson: 'Mr. Chukwuemeka Obi',
-    contactPhone: '08034567890',
-    letterCount: 2,
-    priority: 'URGENT',
-    status: 'picked_up',
-    assignedAt: new Date(Date.now() - 3600000).toISOString(),
-    coordinates: { latitude: 6.4541, longitude: 3.3947 },
-  },
-  {
-    id: '4',
-    scheduleId: 'SCH-2024-004',
-    companyName: 'MTN Nigeria Communications',
-    destination: '12, Adeola Odeku Street, Victoria Island',
-    lga: 'EKO',
-    contactPerson: 'Mr. Ibrahim Musa',
-    contactPhone: '08045678901',
-    letterCount: 4,
-    priority: 'MINIMAL',
-    status: 'en_route',
-    assignedAt: new Date(Date.now() - 7200000).toISOString(),
-    coordinates: { latitude: 6.4281, longitude: 3.4219 },
-  },
-  {
-    id: '5',
-    scheduleId: 'SCH-2024-005',
-    companyName: 'Dangote Industries Limited',
-    destination: '1, Alfred Rewane Road, Ikoyi',
-    lga: 'EKO',
-    contactPerson: 'Mrs. Amina Bello',
-    contactPhone: '08056789012',
-    letterCount: 6,
-    priority: 'HIGH',
-    status: 'delivered',
-    assignedAt: new Date(Date.now() - 86400000).toISOString(),
-    completedAt: new Date(Date.now() - 82800000).toISOString(),
-    coordinates: { latitude: 6.4474, longitude: 3.4278 },
-    pod: {
-      deliveryId: '5',
-      recipientName: 'Mrs. Amina Bello',
-      recipientPhone: '08056789012',
-      signature: 'mock-signature-base64',
-      photos: [],
-      timestamp: new Date(Date.now() - 82800000).toISOString(),
-    },
-  },
-  {
-    id: '6',
-    scheduleId: 'SCH-2024-006',
-    companyName: 'Access Bank PLC',
-    destination: '999c, Danmole Street, Victoria Island',
-    lga: 'EKO',
-    contactPerson: 'Mr. Emeka Nnamdi',
-    contactPhone: '08067890123',
-    letterCount: 1,
-    priority: 'MEDIUM',
-    status: 'returned',
-    assignedAt: new Date(Date.now() - 172800000).toISOString(),
-    completedAt: new Date(Date.now() - 169200000).toISOString(),
-    coordinates: { latitude: 6.4312, longitude: 3.4189 },
-    notes: 'Recipient not available. Office closed.',
-  },
-  {
-    id: '7',
-    scheduleId: 'SCH-2024-007',
-    companyName: 'Zenith Bank PLC',
-    destination: '84, Ajose Adeogun Street, Victoria Island',
-    lga: 'EKO',
-    contactPerson: 'Dr. Ngozi Okafor',
-    contactPhone: '08078901234',
-    letterCount: 3,
-    priority: 'HIGH',
-    status: 'assigned',
-    assignedAt: new Date().toISOString(),
-    coordinates: { latitude: 6.4298, longitude: 3.4156 },
-  },
-  {
-    id: '8',
-    scheduleId: 'SCH-2024-008',
-    companyName: 'Shoprite Nigeria',
-    destination: 'Palms Shopping Mall, Lekki',
-    lga: 'ETI-OSA',
-    contactPerson: 'Mr. David Okonkwo',
-    contactPhone: '08089012345',
-    letterCount: 2,
-    priority: 'MINIMAL',
-    status: 'assigned',
-    assignedAt: new Date().toISOString(),
-    coordinates: { latitude: 6.4389, longitude: 3.4732 },
-  },
+// Mock Deliveries Database
+const NIGERIAN_COMPANIES = [
+  "Nestlé Nigeria Plc",
+  "Unilever Nigeria Plc",
+  "Dangote Industries Ltd",
+  "MTN Nigeria Communications",
+  "Airtel Nigeria",
+  "Glo Mobile",
+  "First Bank of Nigeria",
+  "Zenith Bank Plc",
+  "Access Bank Plc",
+  "GTBank",
+  "Stanbic IBTC",
+  "Fidelity Bank",
+  "Ecobank Nigeria",
+  "Shoprite Nigeria",
+  "Jumia Nigeria",
+  "Konga Online",
+  "Chi Limited",
+  "PZ Cussons Nigeria",
+  "Flour Mills of Nigeria",
+  "BUA Group",
+  "Olam Nigeria",
+  "TotalEnergies Marketing",
+  "Mobil Oil Nigeria",
+  "Julius Berger Nigeria",
+  "Lafarge Africa Plc",
+  "Dufil Prima Foods",
+  "Nigerian Breweries",
+  "Guinness Nigeria",
+  "7Up Bottling Company",
 ];
+
+const LGAS_LAGOS = [
+  "IKEJA",
+  "SURULERE",
+  "LAGOS ISLAND",
+  "EKO",
+  "ETI-OSA",
+  "LAGOS MAINLAND",
+  "MUSHIN",
+  "OSHODI-ISOLO",
+  "ALIMOSHO",
+  "AMUWO-ODOFIN",
+  "APAPA",
+  "BADAGRY",
+  "EJIGBO",
+  "IFAKO-IJAIYE",
+  "IKORODU",
+  "KOSOFE",
+  "OJO",
+  "SOMOLU",
+  "AGEGE",
+  "AJEROMI-IFELODUN",
+  "IKOYI",
+  "LEKKI PHASE 1",
+  "YABA",
+  "VICTORIA ISLAND",
+  "BANANA ISLAND",
+];
+
+const STREETS = [
+  "Adeola Odeku",
+  "Ajose Adeogun",
+  "Ozumba Mbadiwe",
+  "Ahmadu Bello",
+  "Akin Adesola",
+  "Idowu Taylor",
+  "Idowu Martins",
+  "Sanusi Fafunwa",
+  "Bishop Aboyade Cole",
+  "Saka Tinubu",
+  "Danmole",
+  "Idejo",
+  "Akin Adetokunbo",
+  "Kofo Abayomi",
+  "Aromire",
+  "Toyin",
+  "Opebi",
+  "Allen Avenue",
+  "Kolawole Shonibare",
+  "Isaac John",
+  "Odusami",
+  "Joel Ogunnaike",
+  "Saka",
+  "Mercy Eneli",
+  "Abisogun Leigh",
+];
+
+const FIRST_NAMES = [
+  "Chukwuemeka",
+  "Amina",
+  "Funke",
+  "Ibrahim",
+  "Ngozi",
+  "Emeka",
+  "Tunde",
+  "Fatima",
+  "Olumide",
+  "Blessing",
+  "Yusuf",
+  "Chioma",
+];
+const LAST_NAMES = [
+  "Adeyemi",
+  "Okonkwo",
+  "Musa",
+  "Bello",
+  "Okafor",
+  "Nnamdi",
+  "Johnson",
+  "Akinwale",
+  "Ibrahim",
+  "Eze",
+  "Adetola",
+  "Ogunleye",
+];
+
+function randomItem<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function randomPhone(): string {
+  const prefixes = ["080", "081", "070", "090", "091"];
+  const prefix = randomItem(prefixes);
+  const rest = Math.floor(10000000 + Math.random() * 90000000);
+  return `${prefix}${rest}`;
+}
+
+function randomDate(
+  daysBack: number = 90,
+  maxHoursSpread: number = 48
+): string {
+  const now = Date.now();
+  const offset = Math.floor(Math.random() * daysBack * 24 * 60 * 60 * 1000);
+  const hourShift = Math.floor(Math.random() * maxHoursSpread * 60 * 60 * 1000);
+  return new Date(now - offset - hourShift).toISOString();
+}
+
+function randomCoordinates(
+  baseLat: number = 6.45,
+  baseLng: number = 3.39,
+  radiusKm: number = 35
+): { latitude: number; longitude: number } {
+  const angle = Math.random() * Math.PI * 2;
+  const distance = Math.random() * radiusKm;
+  const lat = baseLat + (distance / 111.32) * Math.cos(angle);
+  const lng =
+    baseLng +
+    (distance / (111.32 * Math.cos((baseLat * Math.PI) / 180))) *
+      Math.sin(angle);
+  return { latitude: +lat.toFixed(5), longitude: +lng.toFixed(5) };
+}
+
+function randomStatus(): DeliveryStatus {
+  return randomItem([
+    "assigned",
+    "picked_up",
+    "en_route",
+    "arrived",
+    "delivered",
+    "returned",
+  ]);
+}
+
+function randomPriority(): Priority {
+  return randomItem(["URGENT", "NORMAL"]);
+}
+
+function createMockPOD(
+  id: string,
+  recipientName: string,
+  recipientPhone: string
+): PODData | undefined {
+  if (Math.random() > 0.65) return undefined;
+
+  return {
+    deliveryId: id,
+    recipientName,
+    recipientPhone,
+    signature: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...mock_signature",
+    photos: Math.random() > 0.4 ? ["photo1.jpg", "photo2.jpg"] : [],
+    timestamp: randomDate(0, 4),
+    notes:
+      Math.random() > 0.7
+        ? "Left with security / Delivered to front desk"
+        : undefined,
+  };
+}
+
+function generateMockDeliveries(count: number = 100): Delivery[] {
+  return Array.from({ length: count }, (_, i) => {
+    const id = (i + 1).toString().padStart(3, "0");
+    const company = randomItem(NIGERIAN_COMPANIES);
+    const contactPerson = `${randomItem(FIRST_NAMES)} ${randomItem(
+      LAST_NAMES
+    )}`;
+    const contactPhone = randomPhone();
+    const status = randomStatus();
+    const submittedAt = randomDate(120, 72);
+    const assignedAt = new Date(
+      new Date(submittedAt).getTime() + 3600000 * (1 + Math.random() * 24)
+    ).toISOString();
+
+    const delivery: Delivery = {
+      id,
+      scheduleId: `SCH-2025-${id.padStart(4, "0")}`,
+      companyName: company,
+      title: `Corporate Documents - ${company.split(" ")[0]}`,
+      destination: `${Math.floor(Math.random() * 200) + 1}${
+        Math.random() > 0.3 ? "B" : ""
+      }, ${randomItem(STREETS)} Street${
+        Math.random() > 0.6
+          ? ", " +
+            randomItem(["Phase 1", "Phase 2", "Ikeja GRA", "Lekki Phase 1"])
+          : ""
+      }, Lagos`,
+      lga: randomItem(LGAS_LAGOS),
+      liabilityYear: randomItem(["2024", "2025", "2025/2026"]),
+      status,
+      priority: randomPriority(),
+      liabilityAmount: Math.floor(125000 + Math.random() * 1850000),
+      submittedAt,
+      contactPerson,
+      contactPhone,
+      assignedCourierId:
+        Math.random() > 0.15
+          ? `COU-${Math.floor(Math.random() * 10) + 1}`
+          : undefined,
+      assignedAt,
+      coordinates: randomCoordinates(),
+    };
+
+    // Add time-based fields according to status
+    if (
+      ["picked_up", "en_route", "delivered", "returned", "arrived"].includes(
+        status
+      )
+    ) {
+      delivery.pickedUpAt = new Date(
+        new Date(assignedAt).getTime() + 3600000 * (1 + Math.random() * 12)
+      ).toISOString();
+    }
+
+    if (["delivered", "returned", "arrived"].includes(status)) {
+      const completedTime = new Date(
+        new Date(delivery.pickedUpAt!).getTime() +
+          7200000 +
+          Math.random() * 14400000
+      );
+      delivery.completedAt = completedTime.toISOString();
+
+      if (status === "delivered") {
+        delivery.pod = createMockPOD(id, contactPerson, contactPhone);
+      }
+    }
+
+    if (["returned"].includes(status)) {
+      delivery.notes = randomItem([
+        "Recipient not available after multiple attempts",
+        "Wrong address provided",
+        "Office closed / Public holiday",
+        "Recipient refused delivery",
+        "Incomplete documentation",
+        "Security denied access",
+      ]);
+    }
+
+    return delivery;
+  });
+}
+
+// Usage:
+export const mockDeliveries: Delivery[] = generateMockDeliveries(20);
 
 // Mock API Service
 export const api = {
@@ -178,14 +334,15 @@ export const api = {
 
     // Find user by email (case-insensitive)
     const foundUser = mockUsers.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      (u) =>
+        u.email.toLowerCase() === email.toLowerCase() && u.password === password
     );
 
     if (foundUser) {
       return { user: foundUser.user };
     }
 
-    throw new Error('Invalid email or password');
+    throw new Error("Invalid email or password");
   },
 
   // Deliveries
@@ -199,6 +356,16 @@ export const api = {
     return mockDeliveries.find((d) => d.id === id);
   },
 
+  // Deliveries
+  getCourierDeliveries: async (courierId: number): Promise<Delivery[]> => {
+    await delay(800);
+    return [
+      ...mockDeliveries.filter(
+        (d) => d?.assignedCourierId === `COU-${courierId}`
+      ),
+    ];
+  },
+
   updateDeliveryStatus: async (
     id: string,
     status: DeliveryStatus,
@@ -210,12 +377,12 @@ export const api = {
     if (delivery) {
       delivery.status = status;
       if (notes) delivery.notes = notes;
-      if (status === 'delivered' || status === 'returned') {
+      if (status === "delivered" || status === "returned") {
         delivery.completedAt = new Date().toISOString();
       }
     }
 
-    return { success: true, message: 'Status updated successfully' };
+    return { success: true, message: "Status updated successfully" };
   },
 
   // POD Submission
@@ -225,18 +392,18 @@ export const api = {
     const delivery = mockDeliveries.find((d) => d.id === pod.deliveryId);
     if (delivery) {
       delivery.pod = pod;
-      delivery.status = 'delivered';
+      delivery.status = "delivered";
       delivery.completedAt = new Date().toISOString();
     }
 
-    console.log('POD Submitted:', {
+    console.log("POD Submitted:", {
       deliveryId: pod.deliveryId,
       recipientName: pod.recipientName,
       hasSignature: !!pod.signature,
       photoCount: pod.photos.length,
     });
 
-    return { success: true, message: 'POD submitted successfully' };
+    return { success: true, message: "POD submitted successfully" };
   },
 
   // Mark delivery as returned/failed
@@ -248,23 +415,23 @@ export const api = {
 
     const delivery = mockDeliveries.find((d) => d.id === id);
     if (delivery) {
-      delivery.status = 'returned';
+      delivery.status = "returned";
       delivery.notes = reason;
       delivery.completedAt = new Date().toISOString();
     }
 
-    return { success: true, message: 'Delivery marked as returned' };
+    return { success: true, message: "Delivery marked as returned" };
   },
 };
 
 // Return failure reasons
 export const failureReasons = [
-  'Recipient not available',
-  'Wrong address',
-  'Office/Business closed',
-  'Refused to accept',
-  'Moved to new location',
-  'Unable to locate address',
-  'Security restriction',
-  'Other',
+  "Recipient not available",
+  "Wrong address",
+  "Office/Business closed",
+  "Refused to accept",
+  "Moved to new location",
+  "Unable to locate address",
+  "Security restriction",
+  "Other",
 ];

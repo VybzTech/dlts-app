@@ -9,7 +9,7 @@ interface EmptyStateProps {
   message?: string;
 }
 
-export function EmptyState({ icon = 'inbox-outline', title, message }: EmptyStateProps) {
+export function EmptyState({ icon = 'mail', title, message }: EmptyStateProps) {
   return (
     <View style={styles.container}>
       <Ionicons name={icon} size={64} color={colors.textLight} />

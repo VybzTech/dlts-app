@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Alert,
   ScrollView,
@@ -11,98 +10,105 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/store/authStore';
 import { useDeliveryStore } from '../../src/store/deliveryStore';
 import { colors } from '../../src/theme/colors';
+import { profileStyles } from '@/styles/profile';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const { deliveries } = useDeliveryStore();
 
-  // Calculate stats
-  const totalDeliveries = deliveries.length;
-  const deliveredCount = deliveries.filter((d) => d.status === 'delivered').length;
-  const returnedCount = deliveries.filter((d) => d.status === 'returned').length;
-  const pendingCount = deliveries.filter((d) =>
+  // Calculate stats - only if user exists
+  const totalDeliveries = deliveries?.length || 0;
+  const deliveredCount = deliveries?.filter((d) => d.status === 'delivered')?.length || 0;
+  const returnedCount = deliveries?.filter((d) => d.status === 'returned')?.length || 0;
+  const pendingCount = deliveries?.filter((d) =>
     !['delivered', 'returned'].includes(d.status)
-  ).length;
-  const successRate = totalDeliveries > 0
-    ? Math.round((deliveredCount / (deliveredCount + returnedCount)) * 100) || 0
+  )?.length || 0;
+  
+  const successRate = totalDeliveries > 0 && (deliveredCount + returnedCount) > 0
+    ? Math.round((deliveredCount / (deliveredCount + returnedCount)) * 100)
     : 0;
 
-  const handleLogout = () => {
+  // Use useCallback to prevent function recreation on every render
+  const handleLogout = useCallback(() => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Logout',
         style: 'destructive',
-        onPress: () => logout(),
+        onPress: () => {
+          // Simply call logout - the useProtectedRoute hook in RootLayout
+          // will handle navigation when isAuthenticated becomes false
+          logout();
+        },
       },
     ]);
-  };
+  }, [logout]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={profileStyles.container}>
       {/* Profile Header */}
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
+      <View style={profileStyles.header}>
+        <View style={profileStyles.avatar}>
+          <Text style={profileStyles.avatarText}>
             {user?.fullName?.charAt(0) || 'C'}
           </Text>
         </View>
-        <Text style={styles.name}>{user?.fullName || 'Courier'}</Text>
-        <Text style={styles.unit}>{user?.unit || 'Dispatch Unit'}</Text>
-        <View style={styles.staffIdBadge}>
+        <Text style={profileStyles.name}>{user?.fullName || 'Courier'}</Text>
+        <Text style={profileStyles.unit}>{user?.unit || 'Dispatch Unit'}</Text>
+        <View style={profileStyles.staffIdBadge}>
           <Ionicons name="id-card-outline" size={14} color={colors.primary} />
-          <Text style={styles.staffIdText}>{user?.staffId || 'N/A'}</Text>
+          <Text style={profileStyles.staffIdText}>{user?.staffId || 'N/A'}</Text>
         </View>
       </View>
 
       {/* Stats Card */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Performance Overview</Text>
+      <View style={profileStyles.card}>
+        <Text style={profileStyles.cardTitle}>Performance Overview</Text>
 
-        <View style={styles.statsGrid}>
-          <View style={styles.statItem}>
-            <View style={[styles.statIcon, { backgroundColor: colors.primaryLight }]}>
+        <View style={profileStyles.statsGrid}>
+          <View style={profileStyles.statItem}>
+            <View style={[profileStyles.statIcon, { backgroundColor: colors.primaryLight }]}>
               <Ionicons name="cube" size={20} color={colors.primary} />
             </View>
-            <Text style={styles.statValue}>{totalDeliveries}</Text>
-            <Text style={styles.statLabel}>Total Assigned</Text>
+            <Text style={profileStyles.statValue}>{totalDeliveries}</Text>
+            <Text style={profileStyles.statLabel}>Total Assigned</Text>
           </View>
 
-          <View style={styles.statItem}>
-            <View style={[styles.statIcon, { backgroundColor: colors.successLight }]}>
+          <View style={profileStyles.statItem}>
+            <View style={[profileStyles.statIcon, { backgroundColor: colors.successLight }]}>
               <Ionicons name="checkmark-circle" size={20} color={colors.success} />
             </View>
-            <Text style={styles.statValue}>{deliveredCount}</Text>
-            <Text style={styles.statLabel}>Delivered</Text>
+            <Text style={profileStyles.statValue}>{deliveredCount}</Text>
+            <Text style={profileStyles.statLabel}>Delivered</Text>
           </View>
 
-          <View style={styles.statItem}>
-            <View style={[styles.statIcon, { backgroundColor: colors.dangerLight }]}>
+          <View style={profileStyles.statItem}>
+            <View style={[profileStyles.statIcon, { backgroundColor: colors.dangerLight }]}>
               <Ionicons name="close-circle" size={20} color={colors.danger} />
             </View>
-            <Text style={styles.statValue}>{returnedCount}</Text>
-            <Text style={styles.statLabel}>Returned</Text>
+            <Text style={profileStyles.statValue}>{returnedCount}</Text>
+            <Text style={profileStyles.statLabel}>Returned</Text>
           </View>
 
-          <View style={styles.statItem}>
-            <View style={[styles.statIcon, { backgroundColor: colors.warningLight }]}>
+          <View style={profileStyles.statItem}>
+            <View style={[profileStyles.statIcon, { backgroundColor: colors.warningLight }]}>
               <Ionicons name="hourglass" size={20} color={colors.warning} />
             </View>
-            <Text style={styles.statValue}>{pendingCount}</Text>
-            <Text style={styles.statLabel}>Pending</Text>
+            <Text style={profileStyles.statValue}>{pendingCount}</Text>
+            <Text style={profileStyles.statLabel}>Pending</Text>
           </View>
         </View>
 
         {/* Success Rate */}
-        <View style={styles.successRateContainer}>
-          <View style={styles.successRateHeader}>
-            <Text style={styles.successRateLabel}>Success Rate</Text>
-            <Text style={styles.successRateValue}>{successRate}%</Text>
+        <View style={profileStyles.successRateContainer}>
+          <View style={profileStyles.successRateHeader}>
+            <Text style={profileStyles.successRateLabel}>Success Rate</Text>
+            <Text style={profileStyles.successRateValue}>{successRate}%</Text>
           </View>
-          <View style={styles.progressBar}>
+          <View style={profileStyles.progressBar}>
             <View
               style={[
-                styles.progressFill,
+                profileStyles.progressFill,
                 {
                   width: `${successRate}%`,
                   backgroundColor: successRate >= 80 ? colors.success : successRate >= 60 ? colors.warning : colors.danger,
@@ -114,259 +120,73 @@ export default function ProfileScreen() {
       </View>
 
       {/* Account Info */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Account Information</Text>
+      <View style={profileStyles.card}>
+        <Text style={profileStyles.cardTitle}>Account Information</Text>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="mail-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Email</Text>
-            <Text style={styles.infoValue}>{user?.email || 'N/A'}</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>Email</Text>
+            <Text style={profileStyles.infoValue}>{user?.email || 'N/A'}</Text>
           </View>
         </View>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="shield-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Role</Text>
-            <Text style={[styles.infoValue, { textTransform: 'capitalize' }]}>{user?.role || 'N/A'}</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>Role</Text>
+            <Text style={[profileStyles.infoValue, { textTransform: 'capitalize' }]}>{user?.role || 'N/A'}</Text>
           </View>
         </View>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="business-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Unit</Text>
-            <Text style={styles.infoValue}>{user?.unit || 'N/A'}</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>Unit</Text>
+            <Text style={profileStyles.infoValue}>{user?.unit || 'N/A'}</Text>
           </View>
         </View>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="id-card-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Staff ID</Text>
-            <Text style={styles.infoValue}>{user?.staffId || 'N/A'}</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>Staff ID</Text>
+            <Text style={profileStyles.infoValue}>{user?.staffId || 'N/A'}</Text>
           </View>
         </View>
       </View>
 
       {/* App Info */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>About</Text>
+      <View style={profileStyles.card}>
+        <Text style={profileStyles.cardTitle}>About</Text>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="information-circle-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>App Version</Text>
-            <Text style={styles.infoValue}>1.0.0</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>App Version</Text>
+            <Text style={profileStyles.infoValue}>1.0.0</Text>
           </View>
         </View>
 
-        <View style={styles.infoRow}>
+        <View style={profileStyles.infoRow}>
           <Ionicons name="shield-checkmark-outline" size={20} color={colors.textSecondary} />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Build</Text>
-            <Text style={styles.infoValue}>MVP</Text>
+          <View style={profileStyles.infoContent}>
+            <Text style={profileStyles.infoLabel}>Build</Text>
+            <Text style={profileStyles.infoValue}>MVP</Text>
           </View>
         </View>
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity style={profileStyles.logoutButton} onPress={handleLogout}>
         <Ionicons name="log-out-outline" size={24} color={colors.danger} />
-        <Text style={styles.logoutText}>Logout</Text>
+        <Text style={profileStyles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>LIRS Document & Logistics Tracking System</Text>
-        <Text style={styles.footerSubtext}>Courier Mobile App</Text>
+      <View style={profileStyles.footer}>
+        <Text style={profileStyles.footerText}>LIRS Document & Logistics Tracking System</Text>
+        <Text style={profileStyles.footerSubtext}>Courier Mobile App</Text>
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 30,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  avatarText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: 4,
-  },
-  unit: {
-    fontSize: 14,
-    color: colors.white,
-    opacity: 0.9,
-    marginBottom: 12,
-  },
-  staffIdBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 6,
-  },
-  staffIdText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.primary,
-  },
-  card: {
-    backgroundColor: colors.white,
-    marginHorizontal: 16,
-    marginTop: 16,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 16,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  statItem: {
-    width: '47%',
-    backgroundColor: colors.background,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-  },
-  statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 4,
-  },
-  successRateContainer: {
-    marginTop: 16,
-    padding: 16,
-    backgroundColor: colors.background,
-    borderRadius: 12,
-  },
-  successRateHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  successRateLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  successRateValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  progressBar: {
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  infoContent: {
-    marginLeft: 12,
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  infoValue: {
-    fontSize: 15,
-    color: colors.text,
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.dangerLight,
-    marginHorizontal: 16,
-    marginTop: 24,
-    padding: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.danger,
-  },
-  footer: {
-    alignItems: 'center',
-    padding: 24,
-    marginTop: 8,
-  },
-  footerText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  footerSubtext: {
-    fontSize: 11,
-    color: colors.textLight,
-    marginTop: 4,
-  },
-});
