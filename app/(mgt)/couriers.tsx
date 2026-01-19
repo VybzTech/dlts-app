@@ -1,9 +1,14 @@
-import { View, Text, FlatList } from "react-native";
-import { useAuthStore } from "@/src/store/authStore";
+import { useAdminStore } from "@/src/store/adminStore";
+import { User } from "@/src/types";
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 
 export default function ManagementCouriers() {
-  const users = useAuthStore((s) => s.users || []);
-  const couriers = users.filter((u) => u.role === "courier");
+  // const users = useAuthStore((s) => s.users || []);
+  // const couriers = users.filter((u) => u.role === "courier");
+  const [couriers, setCouriers] = useState<User[]>([]);
+
+  useEffect(() => setCouriers(useAdminStore.getState().couriers), []);
 
   return (
     <View style={{ flex: 1, padding: 16 }}>

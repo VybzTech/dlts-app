@@ -46,7 +46,7 @@ const mockUsers: { email: string; password: string; user: User }[] = [
       fullName: "David Okonkwo",
       staffId: "IT001",
       unit: "IT",
-      role: "unit",
+      role: "mgt",
     },
   },
 ];

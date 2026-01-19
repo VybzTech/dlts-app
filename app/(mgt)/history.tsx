@@ -1,11 +1,20 @@
-import { View, Text, FlatList } from "react-native";
 import { useDeliveryStore } from "@/src/store/deliveryStore";
+import { Delivery } from "@/src/types";
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 
 export default function ManagementHistory() {
-  const deliveries = useDeliveryStore((s) =>
-    s.deliveries.filter((d) => d.status === "delivered" || d.status === "returned")
-  );
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
 
+  useEffect(() => {
+    setDeliveries(
+      useDeliveryStore
+        .getState()
+        .deliveries.filter(
+          (d) => d?.status === "delivered" || d?.status === "returned",
+        ),
+    );
+  }, []);
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>
@@ -28,6 +37,11 @@ export default function ManagementHistory() {
             <Text>Status: {item.status}</Text>
           </View>
         )}
+        ListEmptyComponent={
+          <Text style={{ textAlign: "center", color: "#888", marginTop: 40 }}>
+            No completed deliveries yet
+          </Text>
+        }
       />
     </View>
   );

@@ -51,7 +51,7 @@ export interface PODData {
 }
 
 // User Roles
-export type UserRole = "courier" | "admin" | "unit";
+export type UserRole = "courier" | "admin" | "mgt";
 
 export interface User {
   id: string;

@@ -1,9 +1,17 @@
-import { View, FlatList, Text } from "react-native";
-import { useDeliveryStore } from "@/src/store/deliveryStore";
 import { DeliveryCard } from "@/src/components/delivery/DeliveryCard";
+import { useDeliveryStore } from "@/src/store/deliveryStore";
+import { Delivery } from "@/src/types";
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 
 export default function ManagementLetters() {
-  const deliveries = useDeliveryStore((s) => s.deliveries);
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+
+  useEffect(() => {
+    setDeliveries(useDeliveryStore.getState().deliveries);
+  }, []);
+
+  // const deliveries = useDeliveryStore((s) => s.deliveries);
 
   return (
     <View style={{ flex: 1, padding: 16 }}>

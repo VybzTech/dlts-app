@@ -71,29 +71,28 @@
 //   );
 // }
 
+import { colors } from "@/src/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { colors } from "@/src/theme/colors";
 
 export default function AdminLayout() {
   return (
-    // <Tabs screenOptions={{ headerShown: false }}>
-       <Tabs
-       screenOptions={{
-         tabBarActiveTintColor: colors.primary,
-         tabBarInactiveTintColor: colors.textSecondary,
-         tabBarStyle: {
-           backgroundColor: colors.white,
-           borderTopColor: colors.border,
-           height: 100,
-           paddingBottom: 18,
-           paddingTop: 8,
-         },
-         headerStyle: { backgroundColor: colors.primary },
-         headerTintColor: colors.white,
-         headerTitleStyle: { fontWeight: "600" },
-       }}
-     >
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: {
+          backgroundColor: colors.white,
+          borderTopColor: colors.border,
+          height: 100,
+          paddingBottom: 18,
+          paddingTop: 8,
+        },
+        headerStyle: { backgroundColor: colors.primary },
+        headerTintColor: colors.white,
+        headerTitleStyle: { fontWeight: "600" },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
