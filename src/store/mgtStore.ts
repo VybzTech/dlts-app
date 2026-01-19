@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { Delivery } from "@/src/types";
 
-interface UnitState {
+interface MgtState {
   submittedLetters: Delivery[];
   draftLetters: Delivery[];
   
@@ -13,7 +13,7 @@ interface UnitState {
   getStats: () => { submitted: number; pending: number; completed: number };
 }
 
-export const useUnitStore = create<UnitState>((set, get) => ({
+export const useMgtStore = create<MgtState>((set, get) => ({
   submittedLetters: [],
   draftLetters: [],
 

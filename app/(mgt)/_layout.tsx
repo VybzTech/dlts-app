@@ -1,12 +1,9 @@
-// // ROLE-BASED NAVIGATION LAYOUTS
-// // ============================================================================
-
-// // app/(courier)/_layout.tsx
+// // app/(mgt)/_layout.tsx
 // import { Tabs } from "expo-router";
 // import { Ionicons } from "@expo/vector-icons";
 // import { colors } from "@/src/theme/colors";
 
-// export default function CourierLayout() {
+// export default function UnitLayout() {
 //   return (
 //     <Tabs
 //       screenOptions={{
@@ -27,10 +24,19 @@
 //       <Tabs.Screen
 //         name="index"
 //         options={{
-//           title: "Deliveries",
-//           headerTitle: "My Deliveries",
+//           title: "Dashboard",
+//           headerTitle: "My Submissions",
 //           tabBarIcon: ({ color, size }) => (
-//             <Ionicons name="cube" size={size} color={color} />
+//             <Ionicons name="home" size={size} color={color} />
+//           ),
+//         }}
+//       />
+//       <Tabs.Screen
+//         name="letters"
+//         options={{
+//           title: "Letters",
+//           tabBarIcon: ({ color, size }) => (
+//             <Ionicons name="mail" size={size} color={color} />
 //           ),
 //         }}
 //       />
@@ -55,36 +61,10 @@
 //     </Tabs>
 //   );
 // }
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@/src/theme/colors";
 
-export default function CourierLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "My Deliveries",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="cube-outline" size={22} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={22} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+
+import { Stack } from "expo-router";
+
+export default function MgtLayout() {
+  return <Stack screenOptions={{ headerShown: false }} />;
 }

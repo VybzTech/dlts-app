@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Delivery, DeliveryStatus, StatusFilter, PODData } from '../types';
+import { useAuthStore } from './authStore';
 
 interface DeliveryState {
   deliveries: Delivery[];
@@ -16,7 +17,7 @@ interface DeliveryState {
   setFilter: (filter: StatusFilter) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-
+getCourierDeliveries: () => Delivery[];
   // Computed
   getFilteredDeliveries: () => Delivery[];
   getPendingCount: () => number;
@@ -65,6 +66,13 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   setLoading: (loading) => set({ isLoading: loading }),
 
   setError: (error) => set({ error }),
+
+ getCourierDeliveries: () => {
+    const user = useAuthStore.getState().user;
+    return get().deliveries.filter(
+      (d) => d.assignedCourierId === user?.id
+    );
+  },
 
   getFilteredDeliveries: () => {
     const { deliveries, filter } = get();

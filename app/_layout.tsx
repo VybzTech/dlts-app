@@ -134,7 +134,7 @@ function useProtectedRoute() {
       const roleRoutes = {
         courier: "/(courier)",
         admin: "/(admin)",
-        unit: "/(unit)",
+        mgt: "/(mgt)",
       };
       const route = roleRoutes[user?.role as keyof typeof roleRoutes] || "/(auth)/login";
       setTimeout(() => router.replace(route as any), 500);
@@ -172,7 +172,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(courier)" />
         <Stack.Screen name="(admin)" />
-        <Stack.Screen name="(unit)" />
+        <Stack.Screen name="(mgt)" />
       </Stack>
       <StatusBar style="auto" />
     </>

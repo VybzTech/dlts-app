@@ -1,6 +1,11 @@
+// /app/(auth)/login
+
+import { api } from "@/src/services/api";
 import { colors } from "@/src/theme/colors";
 import { loginStyles } from "@/styles/login";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -14,9 +19,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/authStore";
-import { LinearGradient } from "expo-linear-gradient";
-import { api } from "@/src/services/api";
-import { useRouter } from "expo-router";
 
 interface FormErrors {
   email?: string;
@@ -55,7 +57,11 @@ export default function LoginScreen() {
 
   const clearFieldError = (field: keyof FormErrors) => {
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined, general: undefined }));
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+        general: undefined,
+      }));
     }
   };
 
@@ -71,8 +77,16 @@ export default function LoginScreen() {
     try {
       const response = await api.login(email.trim(), password);
       login(response.user);
+      console.log(response.user);
       // Navigate to tabs after successful login
-      router.replace("/(tabs)");
+      // router.replace("/(tabs)");
+      const roleRoutes = {
+        courier: "/(courier)",
+        admin: "/(admin)",
+        mgt: "/(mgt)",
+      };
+
+      router.replace(roleRoutes[response.user.role]);
     } catch (error: any) {
       setErrors({ general: error.message || "Invalid credentials" });
     } finally {
@@ -100,7 +114,12 @@ export default function LoginScreen() {
         <View style={loginStyles.form}>
           {/* General Error Message */}
           {errors.general && (
-            <View style={[loginStyles.errorContainer, { justifyContent: "center", marginBottom: 12 }]}>
+            <View
+              style={[
+                loginStyles.errorContainer,
+                { justifyContent: "center", marginBottom: 12 },
+              ]}
+            >
               <Ionicons name="alert-circle" size={16} color={colors.danger} />
               <Text style={loginStyles.errorText}>{errors.general}</Text>
             </View>
@@ -210,9 +229,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
         <View style={loginStyles.footer}>
-          <Text style={loginStyles.footerText}>
-            LIRS - DLTS
-          </Text>
+          <Text style={loginStyles.footerText}>LIRS - DLTS</Text>
           <Text style={loginStyles.versionText}>Version 1.0.0</Text>
         </View>
       </KeyboardAvoidingView>
