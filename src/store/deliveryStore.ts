@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import type { Delivery, DeliveryStatus, StatusFilter, PODData } from '../types';
-import { useAuthStore } from './authStore';
+import { create } from "zustand";
+import type { Delivery, DeliveryStatus, PODData, StatusFilter } from "../types";
+import { useAuthStore } from "./authStore";
 
 interface DeliveryState {
   deliveries: Delivery[];
@@ -17,7 +17,7 @@ interface DeliveryState {
   setFilter: (filter: StatusFilter) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-getCourierDeliveries: () => Delivery[];
+  getCourierDeliveries: () => Delivery[];
   // Computed
   getFilteredDeliveries: () => Delivery[];
   getPendingCount: () => number;
@@ -27,7 +27,7 @@ getCourierDeliveries: () => Delivery[];
 export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   deliveries: [],
   selectedDelivery: null,
-  filter: 'all',
+  filter: "all",
   isLoading: false,
   error: null,
 
@@ -42,11 +42,12 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
           ? {
               ...d,
               status,
-              completedAt: status === 'delivered' || status === 'returned'
-                ? new Date().toISOString()
-                : d.completedAt,
+              completedAt:
+                status === "delivered" || status === "returned"
+                  ? new Date().toISOString()
+                  : d.completedAt,
             }
-          : d
+          : d,
       ),
       selectedDelivery:
         state.selectedDelivery?.id === id
@@ -57,7 +58,7 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   addPODToDelivery: (id, pod) =>
     set((state) => ({
       deliveries: state.deliveries.map((d) =>
-        d.id === id ? { ...d, pod, status: 'delivered' as DeliveryStatus } : d
+        d.id === id ? { ...d, pod, status: "delivered" as DeliveryStatus } : d,
       ),
     })),
 
@@ -67,25 +68,31 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
 
   setError: (error) => set({ error }),
 
- getCourierDeliveries: () => {
-    const user = useAuthStore.getState().user;
-    return get().deliveries.filter(
-      (d) => d.assignedCourierId === user?.id
-    );
-  },
+  // getCourierDeliveries: () => {
+  //   const user = useAuthStore.getState().user;
+  //   return get().deliveries.filter((d) => d.assignedCourierId === user?.id);
+  // },
+
+  getCourierDeliveries: () => {
+  const user = useAuthStore.getState().user;
+  if (!user) return [];
+  
+  // The assignedCourierId format is "COU-1", so we need to match it with user.id
+  return get().deliveries.filter((d) => d.assignedCourierId === `COU-${user.id}`);
+},
 
   getFilteredDeliveries: () => {
     const { deliveries, filter } = get();
     switch (filter) {
-      case 'pending':
-        return deliveries.filter((d) => d.status === 'assigned');
-      case 'in_progress':
+      case "pending":
+        return deliveries.filter((d) => d.status === "assigned");
+      case "in_progress":
         return deliveries.filter((d) =>
-          ['picked_up', 'en_route', 'arrived'].includes(d.status)
+          ["picked_up", "en_route", "arrived"].includes(d.status),
         );
-      case 'completed':
+      case "completed":
         return deliveries.filter((d) =>
-          ['delivered', 'returned'].includes(d.status)
+          ["delivered", "returned"].includes(d.status),
         );
       default:
         return deliveries;
@@ -94,15 +101,15 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
 
   getPendingCount: () => {
     const { deliveries } = get();
-    return deliveries.filter((d) =>
-      !['delivered', 'returned'].includes(d.status)
+    return deliveries.filter(
+      (d) => !["delivered", "returned"].includes(d.status),
     ).length;
   },
 
   getCompletedCount: () => {
     const { deliveries } = get();
     return deliveries.filter((d) =>
-      ['delivered', 'returned'].includes(d.status)
+      ["delivered", "returned"].includes(d.status),
     ).length;
   },
 }));

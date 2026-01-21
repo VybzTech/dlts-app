@@ -140,18 +140,21 @@
 //   },
 // });
 
-
-
-
-import { View, Text, TouchableOpacity } from "react-native";
-import { Delivery } from "@/src/types";
 import { useAuthStore } from "@/src/store/authStore";
 import { useDeliveryStore } from "@/src/store/deliveryStore";
+import { Delivery } from "@/src/types";
+import { Text, TouchableOpacity, View } from "react-native";
 import { StatusBadge } from "./StatusBadge";
 
-export function DeliveryCard({ delivery }: { delivery: Delivery }) {
+export function DeliveryCard({
+  id,
+  delivery,
+}: {
+  id: number;
+  delivery: Delivery;
+}) {
   const { user } = useAuthStore();
-  const updateStatus = useDeliveryStore((s) => s.updateStatus);
+  const updateStatus = useDeliveryStore((s) => s.updateDeliveryStatus);
 
   return (
     <View

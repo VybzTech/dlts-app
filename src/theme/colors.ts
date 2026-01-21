@@ -16,7 +16,7 @@ export const colors = {
 
   // Text Colors
   textPrimary: "#ecfdf5",
-  textSecondary: "#bbf7d0",
+  // textSecondary: "#bbf7d0",
   textMuted: "#86efac",
 
   // Border Colors
@@ -86,8 +86,6 @@ export const statusLabels: Record<string, string> = {
 
 // Priority Labels
 export const priorityLabels: Record<string, string> = {
-  MINIMAL: "Low",
-  MEDIUM: "Medium",
-  HIGH: "High",
+  NORMAL: "Normal",
   URGENT: "Urgent",
 };

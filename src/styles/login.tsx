@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { colors } from "../src/theme/colors";
+import { colors } from "../theme/colors";
 
 export const loginStyles = StyleSheet.create({
   container: {
@@ -112,7 +112,7 @@ export const loginStyles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: "700",  
+    fontWeight: "700",
   },
   versionText: {
     fontSize: 11,

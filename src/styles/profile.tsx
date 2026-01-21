@@ -1,6 +1,5 @@
-
 import { StyleSheet } from "react-native";
-import { colors } from "../src/theme/colors";
+import { colors } from "../theme/colors";
 
 export const profileStyles = StyleSheet.create({
   container: {
@@ -9,7 +8,7 @@ export const profileStyles = StyleSheet.create({
   },
   header: {
     backgroundColor: colors.primary,
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 40,
     paddingBottom: 30,
     borderBottomLeftRadius: 24,
@@ -20,18 +19,18 @@ export const profileStyles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 12,
   },
   avatarText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.primary,
   },
   name: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
     marginBottom: 4,
   },
@@ -42,8 +41,8 @@ export const profileStyles = StyleSheet.create({
     marginBottom: 12,
   },
   staffIdBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.white,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -52,7 +51,7 @@ export const profileStyles = StyleSheet.create({
   },
   staffIdText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.primary,
   },
   card: {
@@ -61,7 +60,7 @@ export const profileStyles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 12,
     padding: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -69,33 +68,33 @@ export const profileStyles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 16,
   },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   statItem: {
-    width: '47%',
+    width: "47%",
     backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   statIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   statValue: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
   },
   statLabel: {
@@ -110,34 +109,34 @@ export const profileStyles = StyleSheet.create({
     borderRadius: 12,
   },
   successRateHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   successRateLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.text,
   },
   successRateValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
   },
   progressBar: {
     height: 8,
     backgroundColor: colors.border,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 4,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderLight,
@@ -153,13 +152,13 @@ export const profileStyles = StyleSheet.create({
   infoValue: {
     fontSize: 15,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
     marginTop: 2,
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.dangerLight,
     marginHorizontal: 16,
     marginTop: 24,
@@ -169,11 +168,11 @@ export const profileStyles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.danger,
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 24,
     marginTop: 8,
   },

@@ -1,3 +1,4 @@
+import { PermissionGate } from "@/src/components/common/PermissionGate";
 import { useAdminStore } from "@/src/store/adminStore";
 import { FlatList, Text, View } from "react-native";
 
@@ -7,9 +8,11 @@ export default function AdminCouriers() {
   const { couriers } = useAdminStore();
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>
-        Courier Riders
-      </Text>
+      <PermissionGate allow={"pod.review"}>
+        <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>
+          Courier Riders
+        </Text>
+      </PermissionGate>
 
       <FlatList
         data={couriers}

@@ -7,6 +7,7 @@ import type {
   Priority,
   User,
 } from "../types";
+import { mockDeliveries } from "./bootstrapService";
 
 // Simulated delay for mock API calls
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,8 +42,20 @@ const mockUsers: { email: string; password: string; user: User }[] = [
     email: "david.it@lirs.net",
     password: "password123",
     user: {
-      id: "3",
+      id: "4",
       email: "david.it@lirs.net",
+      fullName: "David Okonkwo",
+      staffId: "IT001",
+      unit: "IT",
+      role: "mgt",
+    },
+  },
+  {
+    email: "sarah.okeke@lirs.net",
+    password: "password123",
+    user: {
+      id: "3",
+      email: "sarah.okeke@lirs.net",
       fullName: "David Okonkwo",
       staffId: "IT001",
       unit: "IT",
@@ -51,138 +64,25 @@ const mockUsers: { email: string; password: string; user: User }[] = [
   },
 ];
 
-// Mock Deliveries Database
-const NIGERIAN_COMPANIES = [
-  "Nestlé Nigeria Plc",
-  "Unilever Nigeria Plc",
-  "Dangote Industries Ltd",
-  "MTN Nigeria Communications",
-  "Airtel Nigeria",
-  "Glo Mobile",
-  "First Bank of Nigeria",
-  "Zenith Bank Plc",
-  "Access Bank Plc",
-  "GTBank",
-  "Stanbic IBTC",
-  "Fidelity Bank",
-  "Ecobank Nigeria",
-  "Shoprite Nigeria",
-  "Jumia Nigeria",
-  "Konga Online",
-  "Chi Limited",
-  "PZ Cussons Nigeria",
-  "Flour Mills of Nigeria",
-  "BUA Group",
-  "Olam Nigeria",
-  "TotalEnergies Marketing",
-  "Mobil Oil Nigeria",
-  "Julius Berger Nigeria",
-  "Lafarge Africa Plc",
-  "Dufil Prima Foods",
-  "Nigerian Breweries",
-  "Guinness Nigeria",
-  "7Up Bottling Company",
-];
-
-const LGAS_LAGOS = [
-  "IKEJA",
-  "SURULERE",
-  "LAGOS ISLAND",
-  "EKO",
-  "ETI-OSA",
-  "LAGOS MAINLAND",
-  "MUSHIN",
-  "OSHODI-ISOLO",
-  "ALIMOSHO",
-  "AMUWO-ODOFIN",
-  "APAPA",
-  "BADAGRY",
-  "EJIGBO",
-  "IFAKO-IJAIYE",
-  "IKORODU",
-  "KOSOFE",
-  "OJO",
-  "SOMOLU",
-  "AGEGE",
-  "AJEROMI-IFELODUN",
-  "IKOYI",
-  "LEKKI PHASE 1",
-  "YABA",
-  "VICTORIA ISLAND",
-  "BANANA ISLAND",
-];
-
-const STREETS = [
-  "Adeola Odeku",
-  "Ajose Adeogun",
-  "Ozumba Mbadiwe",
-  "Ahmadu Bello",
-  "Akin Adesola",
-  "Idowu Taylor",
-  "Idowu Martins",
-  "Sanusi Fafunwa",
-  "Bishop Aboyade Cole",
-  "Saka Tinubu",
-  "Danmole",
-  "Idejo",
-  "Akin Adetokunbo",
-  "Kofo Abayomi",
-  "Aromire",
-  "Toyin",
-  "Opebi",
-  "Allen Avenue",
-  "Kolawole Shonibare",
-  "Isaac John",
-  "Odusami",
-  "Joel Ogunnaike",
-  "Saka",
-  "Mercy Eneli",
-  "Abisogun Leigh",
-];
-
-const FIRST_NAMES = [
-  "Chukwuemeka",
-  "Amina",
-  "Funke",
-  "Ibrahim",
-  "Ngozi",
-  "Emeka",
-  "Tunde",
-  "Fatima",
-  "Olumide",
-  "Blessing",
-  "Yusuf",
-  "Chioma",
-];
-const LAST_NAMES = [
-  "Adeyemi",
-  "Okonkwo",
-  "Musa",
-  "Bello",
-  "Okafor",
-  "Nnamdi",
-  "Johnson",
-  "Akinwale",
-  "Ibrahim",
-  "Eze",
-  "Adetola",
-  "Ogunleye",
-];
-
-function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+// Safe version that guarantees a return value
+// function randomItem<T>(arr: T[]): T {
+//   if (!arr || arr.length === 0) {
+//     throw new Error("Cannot get random item from empty array");
+//   }
+//   return arr[Math.floor(Math.random() * arr.length)];
+// }
 
 function randomPhone(): string {
-  const prefixes = ["080", "081", "070", "090", "091"];
-  const prefix = randomItem(prefixes);
+  const prefix = ["080", "081", "070", "090", "091"][
+    Math.floor(Math.random() * 5)
+  ];
   const rest = Math.floor(10000000 + Math.random() * 90000000);
   return `${prefix}${rest}`;
 }
 
 function randomDate(
   daysBack: number = 90,
-  maxHoursSpread: number = 48
+  maxHoursSpread: number = 48,
 ): string {
   const now = Date.now();
   const offset = Math.floor(Math.random() * daysBack * 24 * 60 * 60 * 1000);
@@ -193,7 +93,7 @@ function randomDate(
 function randomCoordinates(
   baseLat: number = 6.45,
   baseLng: number = 3.39,
-  radiusKm: number = 35
+  radiusKm: number = 35,
 ): { latitude: number; longitude: number } {
   const angle = Math.random() * Math.PI * 2;
   const distance = Math.random() * radiusKm;
@@ -206,24 +106,25 @@ function randomCoordinates(
 }
 
 function randomStatus(): DeliveryStatus {
-  return randomItem([
+  // const statuses: DeliveryStatus[] = ;
+  return [
     "assigned",
     "picked_up",
     "en_route",
     "arrived",
     "delivered",
     "returned",
-  ]);
+  ][Math.floor(Math.random() * 6)] as DeliveryStatus;
 }
 
 function randomPriority(): Priority {
-  return randomItem(["URGENT", "NORMAL"]);
+  return ["URGENT", "NORMAL"][Math.floor(Math.random() * 2)] as Priority;
 }
 
 function createMockPOD(
   id: string,
   recipientName: string,
-  recipientPhone: string
+  recipientPhone: string,
 ): PODData | undefined {
   if (Math.random() > 0.65) return undefined;
 
@@ -241,19 +142,140 @@ function createMockPOD(
   };
 }
 
-function generateMockDeliveries(count: number = 100): Delivery[] {
+export function generateMockDeliveries(count: number = 100): Delivery[] {
   return Array.from({ length: count }, (_, i) => {
     const id = (i + 1).toString().padStart(3, "0");
-    const company = randomItem(NIGERIAN_COMPANIES);
-    const contactPerson = `${randomItem(FIRST_NAMES)} ${randomItem(
-      LAST_NAMES
-    )}`;
+    // const company = randomItem(NIGERIAN_COMPANIES);
+    //  const firstName = randomItem(FIRST_NAMES);
+    // const lastName = randomItem(LAST_NAMES);
+    const company = [
+      "Nestlé Nigeria Plc",
+      "Unilever Nigeria Plc",
+      "Dangote Industries Ltd",
+      "MTN Nigeria Communications",
+      "Airtel Nigeria",
+      "Glo Mobile",
+      "First Bank of Nigeria",
+      "Zenith Bank Plc",
+      "Access Bank Plc",
+      "GTBank",
+      "Stanbic IBTC",
+      "Fidelity Bank",
+      "Ecobank Nigeria",
+      "Shoprite Nigeria",
+      "Jumia Nigeria",
+      "Konga Online",
+      "Chi Limited",
+      "PZ Cussons Nigeria",
+      "Flour Mills of Nigeria",
+      "BUA Group",
+      "Olam Nigeria",
+      "TotalEnergies Marketing",
+      "Mobil Oil Nigeria",
+      "Julius Berger Nigeria",
+      "Lafarge Africa Plc",
+      "Dufil Prima Foods",
+      "Nigerian Breweries",
+      "Guinness Nigeria",
+      "7Up Bottling Company",
+    ][Math.floor(Math.random() * 24)];
+    const firstName = [
+      "Chukwuemeka",
+      "Amina",
+      "Funke",
+      "Ibrahim",
+      "Ngozi",
+      "Emeka",
+      "Tunde",
+      "Fatima",
+      "Olumide",
+      "Blessing",
+      "Yusuf",
+      "Chioma",
+    ][Math.floor(Math.random() * 11)];
+    const lastName = [
+      "Adeyemi",
+      "Okonkwo",
+      "Musa",
+      "Bello",
+      "Okafor",
+      "Nnamdi",
+      "Johnson",
+      "Akinwale",
+      "Ibrahim",
+      "Eze",
+      "Adetola",
+      "Ogunleye",
+    ][Math.floor(Math.random() * 12)];
+    const contactPerson = `${firstName} ${lastName}`;
     const contactPhone = randomPhone();
     const status = randomStatus();
     const submittedAt = randomDate(120, 72);
     const assignedAt = new Date(
-      new Date(submittedAt).getTime() + 3600000 * (1 + Math.random() * 24)
+      new Date(submittedAt).getTime() + 3600000 * (1 + Math.random() * 24),
     ).toISOString();
+
+    const street = [
+      "Adeola Odeku",
+      "Ajose Adeogun",
+      "Ozumba Mbadiwe",
+      "Ahmadu Bello",
+      "Akin Adesola",
+      "Idowu Taylor",
+      "Idowu Martins",
+      "Sanusi Fafunwa",
+      "Bishop Aboyade Cole",
+      "Saka Tinubu",
+      "Danmole",
+      "Idejo",
+      "Akin Adetokunbo",
+      "Kofo Abayomi",
+      "Aromire",
+      "Toyin",
+      "Opebi",
+      "Allen Avenue",
+      "Kolawole Shonibare",
+      "Isaac John",
+      "Odusami",
+      "Joel Ogunnaike",
+      "Saka",
+      "Mercy Eneli",
+      "Abisogun Leigh",
+    ][Math.floor(Math.random() * 24)];
+    const lga = [
+      "IKEJA",
+      "SURULERE",
+      "LAGOS ISLAND",
+      "EKO",
+      "ETI-OSA",
+      "LAGOS MAINLAND",
+      "MUSHIN",
+      "OSHODI-ISOLO",
+      "ALIMOSHO",
+      "AMUWO-ODOFIN",
+      "APAPA",
+      "BADAGRY",
+      "EJIGBO",
+      "IFAKO-IJAIYE",
+      "IKORODU",
+      "KOSOFE",
+      "OJO",
+      "SOMOLU",
+      "AGEGE",
+      "AJEROMI-IFELODUN",
+      "IKOYI",
+      "LEKKI PHASE 1",
+      "YABA",
+      "VICTORIA ISLAND",
+      "BANANA ISLAND",
+    ][Math.floor(Math.random() * 24)];
+    const year = ["2023", "2024", "2025", "2026"][
+      Math.floor(Math.random() * 4)
+    ];
+    const priority = randomPriority();
+    const area = ["Phase 1", "Phase 2", "Ikeja GRA", "Lekki Phase 1"][
+      Math.floor(Math.random() * 4)
+    ];
 
     const delivery: Delivery = {
       id,
@@ -262,16 +284,11 @@ function generateMockDeliveries(count: number = 100): Delivery[] {
       title: `Corporate Documents - ${company.split(" ")[0]}`,
       destination: `${Math.floor(Math.random() * 200) + 1}${
         Math.random() > 0.3 ? "B" : ""
-      }, ${randomItem(STREETS)} Street${
-        Math.random() > 0.6
-          ? ", " +
-            randomItem(["Phase 1", "Phase 2", "Ikeja GRA", "Lekki Phase 1"])
-          : ""
-      }, Lagos`,
-      lga: randomItem(LGAS_LAGOS),
-      liabilityYear: randomItem(["2024", "2025", "2025/2026"]),
+      }, ${street} Street${Math.random() > 0.6 ? ", " + area : ""}, Lagos`,
+      lga,
+      liabilityYear: year,
       status,
-      priority: randomPriority(),
+      priority,
       liabilityAmount: Math.floor(125000 + Math.random() * 1850000),
       submittedAt,
       contactPerson,
@@ -287,11 +304,11 @@ function generateMockDeliveries(count: number = 100): Delivery[] {
     // Add time-based fields according to status
     if (
       ["picked_up", "en_route", "delivered", "returned", "arrived"].includes(
-        status
+        status,
       )
     ) {
       delivery.pickedUpAt = new Date(
-        new Date(assignedAt).getTime() + 3600000 * (1 + Math.random() * 12)
+        new Date(assignedAt).getTime() + 3600000 * (1 + Math.random() * 12),
       ).toISOString();
     }
 
@@ -299,7 +316,7 @@ function generateMockDeliveries(count: number = 100): Delivery[] {
       const completedTime = new Date(
         new Date(delivery.pickedUpAt!).getTime() +
           7200000 +
-          Math.random() * 14400000
+          Math.random() * 14400000,
       );
       delivery.completedAt = completedTime.toISOString();
 
@@ -309,22 +326,19 @@ function generateMockDeliveries(count: number = 100): Delivery[] {
     }
 
     if (["returned"].includes(status)) {
-      delivery.notes = randomItem([
+      delivery.notes = [
         "Recipient not available after multiple attempts",
         "Wrong address provided",
         "Office closed / Public holiday",
         "Recipient refused delivery",
         "Incomplete documentation",
         "Security denied access",
-      ]);
+      ][Math.floor(Math.random() * 6)];
     }
 
     return delivery;
   });
 }
-
-// Usage:
-export const mockDeliveries: Delivery[] = generateMockDeliveries(20);
 
 // Mock API Service
 export const api = {
@@ -335,7 +349,8 @@ export const api = {
     // Find user by email (case-insensitive)
     const foundUser = mockUsers.find(
       (u) =>
-        u.email.toLowerCase() === email.toLowerCase() && u.password === password
+        u.email.toLowerCase() === email.toLowerCase() &&
+        u.password === password,
     );
 
     if (foundUser) {
@@ -361,7 +376,7 @@ export const api = {
     await delay(800);
     return [
       ...mockDeliveries.filter(
-        (d) => d?.assignedCourierId === `COU-${courierId}`
+        (d) => d?.assignedCourierId === `COU-${courierId}`,
       ),
     ];
   },
@@ -369,7 +384,7 @@ export const api = {
   updateDeliveryStatus: async (
     id: string,
     status: DeliveryStatus,
-    notes?: string
+    notes?: string,
   ): Promise<ApiResponse<null>> => {
     await delay(500);
 
@@ -396,20 +411,13 @@ export const api = {
       delivery.completedAt = new Date().toISOString();
     }
 
-    console.log("POD Submitted:", {
-      deliveryId: pod.deliveryId,
-      recipientName: pod.recipientName,
-      hasSignature: !!pod.signature,
-      photoCount: pod.photos.length,
-    });
-
     return { success: true, message: "POD submitted successfully" };
   },
 
   // Mark delivery as returned/failed
   markReturned: async (
     id: string,
-    reason: string
+    reason: string,
   ): Promise<ApiResponse<null>> => {
     await delay(500);
 
