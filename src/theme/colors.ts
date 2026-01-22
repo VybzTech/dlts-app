@@ -65,10 +65,7 @@ export const colors = {
 
   // Status Colors
   status: {
-    assigned: "#8E8E93",
-    picked_up: "#007AFF",
-    en_route: "#FF9500",
-    arrived: "#5856D6",
+    pending_approval: "#FF9500",
     delivered: "#34C759",
     returned: "#FF3B30",
   },
@@ -76,10 +73,7 @@ export const colors = {
 
 // Status Labels
 export const statusLabels: Record<string, string> = {
-  assigned: "Assigned",
-  picked_up: "Picked Up",
-  en_route: "En Route",
-  arrived: "Arrived",
+  pending_approval: "Pending Approval",
   delivered: "Delivered",
   returned: "Returned",
 };

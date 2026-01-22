@@ -40,7 +40,8 @@ export default function AppBootstrap() {
         }
 
         if (user.role === "mgt") {
-          setSubmittedLetters(data.mockDeliveries);
+          setSubmittedLetters(data?.mockDeliveries);
+          setCouriers(data.couriers);
         }
       })
       .finally(() => setLoading(false));

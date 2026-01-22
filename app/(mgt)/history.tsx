@@ -1,112 +1,202 @@
-// import { useDeliveryStore } from "@/src/store/deliveryStore";
-// import { Delivery } from "@/src/types";
-// import { useEffect, useState } from "react";
-// import { FlatList, Text, View } from "react-native";
+import { useMgtStore } from "@/src/store/mgtStore";
+import { colors } from "@/src/theme/colors";
+import { Delivery } from "@/src/types";
+import { Ionicons } from "@expo/vector-icons";
+import { format } from "date-fns";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-// export default function ManagementHistory() {
-//   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+export default function ManagementHistory() {
+  const deliveries = useMgtStore((s) => s.submittedLetters);
 
-//   useEffect(() => {
-//     setDeliveries(
-//       useDeliveryStore
-//         .getState()
-//         .deliveries.filter(
-//           (d) => d?.status === "delivered" || d?.status === "returned",
-//         ),
-//     );
-//   }, []);
-//   return (
-//     <View style={{ flex: 1, padding: 16 }}>
-//       <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 12 }}>
-//         Delivery History
-//       </Text>
+  const completedDeliveries = deliveries
+    .filter((d) => ["delivered", "returned"].includes(d.status))
+    .sort((a, b) => {
+      const dateA = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+      const dateB = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
-//       <FlatList
-//         data={deliveries}
-//         keyExtractor={(item) => item.id}
-//         renderItem={({ item }) => (
-//           <View
-//             style={{
-//               padding: 12,
-//               backgroundColor: "#fff",
-//               borderRadius: 8,
-//               marginBottom: 10,
-//             }}
-//           >
-//             <Text>{item.companyName}</Text>
-//             <Text>Status: {item.status}</Text>
-//           </View>
-//         )}
-//         ListEmptyComponent={
-//           <Text style={{ textAlign: "center", color: "#888", marginTop: 40 }}>
-//             No completed deliveries yet
-//           </Text>
-//         }
-//       />
-//     </View>
-//   );
-// }
+  const renderHistoryCard = ({ item }: { item: Delivery }) => {
+    const isDelivered = item.status === "delivered";
 
-// COURIER HISTORY SCREEN (app/(courier)/history.tsx)
-// ============================================================================
-
-import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/src/theme/colors';
-import { EmptyState } from '@/src/components/common/EmptyState';
-import { historyStyles } from '@/src/styles/history';
-
-const CourierHistory=()=> {
-  const [historyData] = useState([
-    {
-      id: '1',
-      scheduleId: 'SCH-2024-001',
-      companyName: 'Sample Company',
-      status: 'delivered',
-      completedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-  ]);
+    return (
+      <TouchableOpacity style={styles.historyCard} activeOpacity={0.7}>
+        <View style={styles.cardLeft}>
+          <View
+            style={[
+              styles.statusIcon,
+              { backgroundColor: isDelivered ? colors.success + "15" : colors.danger + "15" },
+            ]}
+          >
+            <Ionicons
+              name={isDelivered ? "checkmark-circle" : "close-circle"}
+              size={24}
+              color={isDelivered ? colors.success : colors.danger}
+            />
+          </View>
+          <View style={styles.cardContent}>
+            <Text style={styles.scheduleId}>{item.scheduleId}</Text>
+            <Text style={styles.companyName} numberOfLines={1}>
+              {item.companyName}
+            </Text>
+            <Text style={styles.destination} numberOfLines={1}>
+              {item.destination}
+            </Text>
+            {item.completedAt && (
+              <Text style={styles.completedDate}>
+                {format(new Date(item.completedAt), "MMM d, yyyy 'at' h:mm a")}
+              </Text>
+            )}
+          </View>
+        </View>
+        <View style={styles.cardRight}>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: isDelivered ? colors.success : colors.danger },
+            ]}
+          >
+            <Text style={styles.statusText}>
+              {isDelivered ? "Delivered" : "Returned"}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.border} />
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView style={historyStyles.container}>
-      <View style={historyStyles.header}>
-        <Text style={historyStyles.headerTitle}>Delivery History</Text>
-        <Text style={historyStyles.headerSubtitle}>Your completed deliveries</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Delivery History</Text>
+        <Text style={styles.headerSubtitle}>
+          {completedDeliveries.length} completed deliveries
+        </Text>
       </View>
 
       <FlatList
-        data={historyData}
+        data={completedDeliveries}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={historyStyles.historyCard} activeOpacity={0.7}>
-            <View style={historyStyles.historyLeft}>
-              <Ionicons
-                name={item.status === 'delivered' ? 'checkmark-circle' : 'close-circle'}
-                size={28}
-                color={item.status === 'delivered' ? colors.success : colors.danger}
-              />
-              <View style={historyStyles.historyText}>
-                <Text style={historyStyles.historySchedule}>{item.scheduleId}</Text>
-                <Text style={historyStyles.historyCompany}>{item.companyName}</Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.border} />
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={historyStyles.listContent}
+        renderItem={renderHistoryCard}
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <EmptyState
-            icon="time-outline"
-            title="No History"
-            message="Your completed deliveries will appear here"
-          />
+          <View style={styles.emptyContainer}>
+            <Ionicons name="time-outline" size={48} color={colors.textSecondary} />
+            <Text style={styles.emptyTitle}>No History</Text>
+            <Text style={styles.emptyText}>
+              Completed deliveries will appear here
+            </Text>
+          </View>
         }
       />
     </SafeAreaView>
   );
 }
 
-
-export default CourierHistory;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  historyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  cardLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  statusIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  scheduleId: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text,
+  },
+  companyName: {
+    fontSize: 13,
+    color: colors.text,
+    marginTop: 2,
+  },
+  destination: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  completedDate: {
+    fontSize: 11,
+    color: colors.textLight,
+    marginTop: 4,
+  },
+  cardRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.white,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingTop: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: colors.text,
+    marginTop: 16,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+});

@@ -2,6 +2,27 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  }
+    "source.sortMembers": "explicit",
+
+  },
+    "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#7300f7",
+    "activityBar.background": "#3d0093",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#f6ff00",
+    "activityBarBadge.foreground": "#222",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#3d0093",
+    "statusBar.background": "#3d0093",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#3d0093",
+    "statusBarItem.remoteBackground": "#3d0093",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#3d0093",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#3d0093",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "editor.background":"#221a2d"
+  },
 }

@@ -1,9 +1,6 @@
-// Delivery Status Types
+// Letter/Delivery Status Types
 export type DeliveryStatus =
-  | "assigned"
-  | "picked_up"
-  | "en_route"
-  | "arrived"
+  | "pending_approval"
   | "delivered"
   | "returned";
 
@@ -12,6 +9,7 @@ export type Priority = "NORMAL" | "URGENT";
 // Core Data Types
 export interface Delivery {
   id: string;
+  trackingId: string; // e.g. LTR-2026-007
   scheduleId: string;
   companyName: string;
   title: string;
@@ -57,6 +55,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  phone?: string;
   staffId: string;
   unit: string;
   role: UserRole;
@@ -77,7 +76,6 @@ export interface LoginResponse {
 // Filter Types
 export type StatusFilter =
   | "all"
-  | "returned"
   | "pending"
-  | "in_progress"
-  | "completed";
+  | "completed"
+  | "returned";

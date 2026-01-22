@@ -27,9 +27,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     return {
       total: allDeliveries.length,
       delivered: allDeliveries.filter((d) => d.status === "delivered").length,
-      pending: allDeliveries.filter((d) =>
-        !["delivered", "returned"].includes(d.status)
-      ).length,
+      pending: allDeliveries.filter((d) => d.status === "pending_approval").length,
     };
   },
 

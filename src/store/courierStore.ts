@@ -63,11 +63,9 @@ export const useCourierStore = create<CourierState>()(
       getStats: () => {
         const { assignedDeliveries } = get();
         return {
-          assigned: assignedDeliveries.filter((d) => d.status === "assigned")
+          assigned: assignedDeliveries.filter((d) => d.status === "pending_approval")
             .length,
-          enRoute: assignedDeliveries.filter((d) =>
-            ["picked_up", "en_route", "arrived"].includes(d.status),
-          ).length,
+          enRoute: 0, // No longer used with new status model
           completed: assignedDeliveries.filter((d) =>
             ["delivered", "returned"].includes(d.status),
           ).length,

@@ -85,15 +85,13 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
     const { deliveries, filter } = get();
     switch (filter) {
       case "pending":
-        return deliveries.filter((d) => d.status === "assigned");
-      case "in_progress":
-        return deliveries.filter((d) =>
-          ["picked_up", "en_route", "arrived"].includes(d.status),
-        );
+        return deliveries.filter((d) => d.status === "pending_approval");
       case "completed":
         return deliveries.filter((d) =>
           ["delivered", "returned"].includes(d.status),
         );
+      case "returned":
+        return deliveries.filter((d) => d.status === "returned");
       default:
         return deliveries;
     }
@@ -101,9 +99,7 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
 
   getPendingCount: () => {
     const { deliveries } = get();
-    return deliveries.filter(
-      (d) => !["delivered", "returned"].includes(d.status),
-    ).length;
+    return deliveries.filter((d) => d.status === "pending_approval").length;
   },
 
   getCompletedCount: () => {

@@ -57,7 +57,7 @@ export default function CourierDashboard() {
   const { assignedDeliveries, setAssignedDeliveries, getStats } = useCourierStore();
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'in_progress' | 'completed'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
   // Mock data generator
   // const generateMockDeliveries = () => {
@@ -158,11 +158,7 @@ export default function CourierDashboard() {
   const getFilteredDeliveries = () => {
     switch (filter) {
       case 'pending':
-        return assignedDeliveries.filter((d) => d.status === 'assigned');
-      case 'in_progress':
-        return assignedDeliveries.filter((d) =>
-          ['picked_up', 'en_route', 'arrived'].includes(d.status)
-        );
+        return assignedDeliveries.filter((d) => d.status === 'pending_approval');
       case 'completed':
         return assignedDeliveries.filter((d) =>
           ['delivered', 'returned'].includes(d.status)
@@ -202,7 +198,7 @@ export default function CourierDashboard() {
 
       {/* Filter Tabs */}
       <View style={deliveryStyles.filterContainer}>
-        {(['all', 'pending', 'in_progress', 'completed'] as const).map((f) => (
+        {(['all', 'pending', 'completed'] as const).map((f) => (
           <TouchableOpacity
             key={f}
             style={[deliveryStyles.filterTab, filter === f && deliveryStyles.filterTabActive]}
@@ -214,13 +210,7 @@ export default function CourierDashboard() {
                 filter === f && deliveryStyles.filterTabTextActive,
               ]}
             >
-              {f === 'all'
-                ? 'All'
-                : f === 'pending'
-                ? 'Pending'
-                : f === 'in_progress'
-                ? 'In Progress'
-                : 'Completed'}
+              {f === 'all' ? 'All' : f === 'pending' ? 'Pending' : 'Completed'}
             </Text>
           </TouchableOpacity>
         ))}

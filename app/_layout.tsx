@@ -40,7 +40,7 @@ function useProtectedRoute() {
         roleRoutes[user?.role as keyof typeof roleRoutes] || "/(auth)/login";
       setTimeout(() => router.replace(route as any), 500);
     }
-  }, [isAuthenticated, segments, rootNavigation?.key, user?.role]);
+  }, [isAuthenticated, segments, rootNavigation?.key]); //, user?.role
 
   useEffect(() => {
     setHasNavigated(false);
@@ -66,12 +66,11 @@ export default function RootLayout() {
       </View>
     );
   }
-
+  AppBootstrap();
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
-        <AppBootstrap />
         <Stack.Screen name="(courier)" />
         <Stack.Screen name="(admin)" />
         <Stack.Screen name="(mgt)" />

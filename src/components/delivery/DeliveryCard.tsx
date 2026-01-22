@@ -170,9 +170,9 @@ export function DeliveryCard({
 
       <StatusBadge status={delivery.status} />
 
-      {user?.role === "courier" && delivery.status !== "delivered" && (
+      {user?.role === "courier" && delivery.status === "pending_approval" && (
         <TouchableOpacity
-          onPress={() => updateStatus(delivery.id, "picked_up")}
+          onPress={() => updateStatus(delivery.id, "delivered")}
           style={{
             marginTop: 10,
             backgroundColor: "#0d6efd",
@@ -181,7 +181,7 @@ export function DeliveryCard({
           }}
         >
           <Text style={{ color: "#fff", textAlign: "center" }}>
-            Update Status
+            Mark as Delivered
           </Text>
         </TouchableOpacity>
       )}

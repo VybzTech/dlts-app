@@ -40,9 +40,7 @@ export const useMgtStore = create<MgtState>((set, get) => ({
     const { submittedLetters } = get();
     return {
       submitted: submittedLetters.length,
-      pending: submittedLetters.filter((l) =>
-        ["assigned", "picked_up", "en_route", "arrived"].includes(l.status)
-      ).length,
+      pending: submittedLetters.filter((l) => l.status === "pending_approval").length,
       completed: submittedLetters.filter((l) =>
         ["delivered", "returned"].includes(l.status)
       ).length,

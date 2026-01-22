@@ -5,10 +5,7 @@ export const ROLE_PERMISSIONS = {
     screens: ["courier.deliveries", "courier.profile"],
     actions: ["delivery.view.own", "delivery.update_status", "pod.submit"],
     statusTransitions: {
-      assigned: ["picked_up"],
-      picked_up: ["en_route"],
-      en_route: ["arrived"],
-      arrived: ["delivered", "returned"],
+      pending_approval: ["delivered", "returned"],
     },
   },
 
