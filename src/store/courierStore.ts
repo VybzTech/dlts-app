@@ -14,7 +14,12 @@ interface CourierState {
   setAssignedDeliveries: (deliveries: Delivery[]) => void;
   setCurrentDelivery: (delivery: Delivery | null) => void;
   updateDeliveryStatus: (id: string, status: Delivery["status"]) => void;
-  getStats: () => { assigned: number; enRoute: number; completed: number };
+  getStats: () => {
+    returned: number;
+    assigned: number;
+    enRoute: number;
+    completed: number;
+  };
 }
 
 export const useCourierStore = create<CourierState>()(
@@ -27,7 +32,7 @@ export const useCourierStore = create<CourierState>()(
       setAssignedDeliveries: (deliveries) =>
         set({
           assignedDeliveries: deliveries,
-          completedCount: deliveries.filter((d) => d.status === "delivered")
+          completedCount: deliveries.filter((d) => d.status === "completed")
             .length,
         }),
 
@@ -63,12 +68,14 @@ export const useCourierStore = create<CourierState>()(
       getStats: () => {
         const { assignedDeliveries } = get();
         return {
-          assigned: assignedDeliveries.filter((d) => d.status === "pending_approval")
-            .length,
-          enRoute: 0, // No longer used with new status model
-          completed: assignedDeliveries.filter((d) =>
-            ["delivered", "returned"].includes(d.status),
+          assigned: assignedDeliveries.filter(
+            (d) => d.status === "pending_approval",
           ).length,
+          enRoute: 0,
+          completed: assignedDeliveries.filter((d) => d.status === "completed")
+            .length,
+          returned: assignedDeliveries.filter((d) => d.status === "returned")
+            .length,
         };
       },
     }),

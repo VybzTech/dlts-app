@@ -26,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
       login: async (user: User) => {
         set({ isLoading: true });
         try {
+          axios.post("1456789", body)
           set({ user, isAuthenticated: true, isLoading: false });
         } catch (error) {
           console.error("Login error:", error);

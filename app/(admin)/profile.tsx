@@ -1,199 +1,393 @@
-// import React, { useCallback } from 'react';
-// import {
-//   View,
-//   Text,
-//   TouchableOpacity,
-//   Alert,
-//   ScrollView,
-// } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
-// import { useAuthStore } from '../../src/store/authStore';
-// import { useDeliveryStore } from '../../src/store/deliveryStore';
-// import { colors } from '../../src/theme/colors';
-// import { profileStyles } from '@/styles/profile';
+import { colors } from "@/src/theme/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { Text, ScrollView, View, TouchableOpacity,StyleSheet } from "react-native";
+import AdminDashboard from ".";
+import {SafeAreaView} from "react-native-safe-area-context";
 
-// export default function ProfileScreen() {
-//   const { user, logout } = useAuthStore();
-//   const { deliveries } = useDeliveryStore();
+// app/(admin)/profile.tsx - Admin Profile
+export function AdminProfile() {
+  const adminUser = {
+    name: 'Admin User',
+    email: 'admin@lirs.net',
+    staffId: 'ADM001',
+    unit: 'Administration',
+  };
 
-//   // Calculate stats - only if user exists
-//   const totalDeliveries = deliveries?.length || 0;
-//   const deliveredCount = deliveries?.filter((d) => d.status === 'delivered')?.length || 0;
-//   const returnedCount = deliveries?.filter((d) => d.status === 'returned')?.length || 0;
-//   const pendingCount = deliveries?.filter((d) =>
-//     !['delivered', 'returned'].includes(d.status)
-//   )?.length || 0;
-  
-//   const successRate = totalDeliveries > 0 && (deliveredCount + returnedCount) > 0
-//     ? Math.round((deliveredCount / (deliveredCount + returnedCount)) * 100)
-//     : 0;
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.profileHeader}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{adminUser.name.charAt(0)}</Text>
+          </View>
+          <Text style={styles.name}>{adminUser.name}</Text>
+          <Text style={styles.staffId}>{adminUser.staffId}</Text>
+        </View>
 
-//   // Use useCallback to prevent function recreation on every render
-//   const handleLogout = useCallback(() => {
-//     Alert.alert('Logout', 'Are you sure you want to logout?', [
-//       { text: 'Cancel', style: 'cancel' },
-//       {
-//         text: 'Logout',
-//         style: 'destructive',
-//         onPress: () => {
-//           // Simply call logout - the useProtectedRoute hook in RootLayout
-//           // will handle navigation when isAuthenticated becomes false
-//           logout();
-//         },
-//       },
-//     ]);
-//   }, [logout]);
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Account Information</Text>
 
-//   return (
-//     <ScrollView style={profileStyles.container}>
-//       {/* Profile Header */}
-//       <View style={profileStyles.header}>
-//         <View style={profileStyles.avatar}>
-//           <Text style={profileStyles.avatarText}>
-//             {user?.fullName?.charAt(0) || 'C'}
-//           </Text>
-//         </View>
-//         <Text style={profileStyles.name}>{user?.fullName || 'Courier'}</Text>
-//         <Text style={profileStyles.unit}>{user?.unit || 'Dispatch Unit'}</Text>
-//         <View style={profileStyles.staffIdBadge}>
-//           <Ionicons name="id-card-outline" size={14} color={colors.primary} />
-//           <Text style={profileStyles.staffIdText}>{user?.staffId || 'N/A'}</Text>
-//         </View>
-//       </View>
+          <View style={styles.infoRow}>
+            <Ionicons name="mail-outline" size={20} color={colors.primary} />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoValue}>{adminUser.email}</Text>
+            </View>
+          </View>
 
-//       {/* Stats Card */}
-//       <View style={profileStyles.card}>
-//         <Text style={profileStyles.cardTitle}>Performance Overview</Text>
+          <View style={styles.divider} />
 
-//         <View style={profileStyles.statsGrid}>
-//           <View style={profileStyles.statItem}>
-//             <View style={[profileStyles.statIcon, { backgroundColor: colors.primaryLight }]}>
-//               <Ionicons name="cube" size={20} color={colors.primary} />
-//             </View>
-//             <Text style={profileStyles.statValue}>{totalDeliveries}</Text>
-//             <Text style={profileStyles.statLabel}>Total Assigned</Text>
-//           </View>
+          <View style={styles.infoRow}>
+            <Ionicons name="business-outline" size={20} color={colors.primary} />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Unit</Text>
+              <Text style={styles.infoValue}>{adminUser.unit}</Text>
+            </View>
+          </View>
+        </View>
 
-//           <View style={profileStyles.statItem}>
-//             <View style={[profileStyles.statIcon, { backgroundColor: colors.successLight }]}>
-//               <Ionicons name="checkmark-circle" size={20} color={colors.success} />
-//             </View>
-//             <Text style={profileStyles.statValue}>{deliveredCount}</Text>
-//             <Text style={profileStyles.statLabel}>Delivered</Text>
-//           </View>
-
-//           <View style={profileStyles.statItem}>
-//             <View style={[profileStyles.statIcon, { backgroundColor: colors.dangerLight }]}>
-//               <Ionicons name="close-circle" size={20} color={colors.danger} />
-//             </View>
-//             <Text style={profileStyles.statValue}>{returnedCount}</Text>
-//             <Text style={profileStyles.statLabel}>Returned</Text>
-//           </View>
-
-//           <View style={profileStyles.statItem}>
-//             <View style={[profileStyles.statIcon, { backgroundColor: colors.warningLight }]}>
-//               <Ionicons name="hourglass" size={20} color={colors.warning} />
-//             </View>
-//             <Text style={profileStyles.statValue}>{pendingCount}</Text>
-//             <Text style={profileStyles.statLabel}>Pending</Text>
-//           </View>
-//         </View>
-
-//         {/* Success Rate */}
-//         <View style={profileStyles.successRateContainer}>
-//           <View style={profileStyles.successRateHeader}>
-//             <Text style={profileStyles.successRateLabel}>Success Rate</Text>
-//             <Text style={profileStyles.successRateValue}>{successRate}%</Text>
-//           </View>
-//           <View style={profileStyles.progressBar}>
-//             <View
-//               style={[
-//                 profileStyles.progressFill,
-//                 {
-//                   width: `${successRate}%`,
-//                   backgroundColor: successRate >= 80 ? colors.success : successRate >= 60 ? colors.warning : colors.danger,
-//                 },
-//               ]}
-//             />
-//           </View>
-//         </View>
-//       </View>
-
-//       {/* Account Info */}
-//       <View style={profileStyles.card}>
-//         <Text style={profileStyles.cardTitle}>Account Information</Text>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="mail-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>Email</Text>
-//             <Text style={profileStyles.infoValue}>{user?.email || 'N/A'}</Text>
-//           </View>
-//         </View>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="shield-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>Role</Text>
-//             <Text style={[profileStyles.infoValue, { textTransform: 'capitalize' }]}>{user?.role || 'N/A'}</Text>
-//           </View>
-//         </View>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="business-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>Unit</Text>
-//             <Text style={profileStyles.infoValue}>{user?.unit || 'N/A'}</Text>
-//           </View>
-//         </View>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="id-card-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>Staff ID</Text>
-//             <Text style={profileStyles.infoValue}>{user?.staffId || 'N/A'}</Text>
-//           </View>
-//         </View>
-//       </View>
-
-//       {/* App Info */}
-//       <View style={profileStyles.card}>
-//         <Text style={profileStyles.cardTitle}>About</Text>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="information-circle-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>App Version</Text>
-//             <Text style={profileStyles.infoValue}>1.0.0</Text>
-//           </View>
-//         </View>
-
-//         <View style={profileStyles.infoRow}>
-//           <Ionicons name="shield-checkmark-outline" size={20} color={colors.textSecondary} />
-//           <View style={profileStyles.infoContent}>
-//             <Text style={profileStyles.infoLabel}>Build</Text>
-//             <Text style={profileStyles.infoValue}>MVP</Text>
-//           </View>
-//         </View>
-//       </View>
-
-//       {/* Logout Button */}
-//       <TouchableOpacity style={profileStyles.logoutButton} onPress={handleLogout}>
-//         <Ionicons name="log-out-outline" size={24} color={colors.danger} />
-//         <Text style={profileStyles.logoutText}>Logout</Text>
-//       </TouchableOpacity>
-
-//       <View style={profileStyles.footer}>
-//         <Text style={profileStyles.footerText}>LIRS Document & Logistics Tracking System</Text>
-//         <Text style={profileStyles.footerSubtext}>Courier Mobile App</Text>
-//       </View>
-//     </ScrollView>
-//   );
-// }
-
-
-import ProfileScreen  from "@/src/screens/auth/ProfileScreen";
-
-export default function AdminProfile() {
-  return <ProfileScreen />;
+        <TouchableOpacity style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={20} color={colors.danger} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 16,
+    gap: 12,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  statIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  actionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  activityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  activityContent: {
+    flex: 1,
+  },
+  activityText: {
+    fontSize: 13,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  activityTime: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
+  courierCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 14,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  courierAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  courierAvatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  courierContent: {
+    flex: 1,
+  },
+  courierName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  courierStats: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 6,
+  },
+  courierStat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  courierStatText: {
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  letterCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    padding: 14,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  letterLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  letterContent: {
+    flex: 1,
+  },
+  letterSchedule: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  letterCompany: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  placeholderSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  placeholderTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: 12,
+  },
+  placeholderText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  profileHeader: {
+    alignItems: 'center',
+    paddingVertical: 28,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  avatarText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: colors.white,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  staffId: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  card: {
+    backgroundColor: colors.white,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  infoValue: {
+    fontSize: 14,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: 8,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    gap: 8,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.danger,
+  },
+});
+
+export default AdminDashboard;
+
+// import ProfileScreen  from "@/src/screens/auth/ProfileScreen";
+
+// export default function AdminProfile() {
+//   return <ProfileScreen />;
+// }

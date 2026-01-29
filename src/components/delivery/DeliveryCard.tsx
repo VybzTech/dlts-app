@@ -1,188 +1,126 @@
-// import React from 'react';
-// import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
-// import { colors, priorityLabels } from '../../theme/colors';
-// import { StatusBadge } from '../common/StatusBadge';
-// import type { Delivery } from '../../types';
-
-// interface DeliveryCardProps {
-//   delivery: Delivery;
-//   onPress: () => void;
-// }
-
-// export function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
-//   const priorityColor = colors.priority[delivery.priority] || colors.priority.MINIMAL;
-
-//   return (
-//     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-//       {/* Priority Indicator */}
-//       <View style={[styles.priorityBar, { backgroundColor: priorityColor }]} />
-
-//       <View style={styles.content}>
-//         {/* Header Row */}
-//         <View style={styles.header}>
-//           <View style={styles.headerLeft}>
-//             <Text style={styles.scheduleId}>{delivery.scheduleId}</Text>
-//             <View style={[styles.priorityBadge, { backgroundColor: priorityColor + '20' }]}>
-//               <Text style={[styles.priorityText, { color: priorityColor }]}>
-//                 {priorityLabels[delivery.priority]}
-//               </Text>
-//             </View>
-//           </View>
-//           <StatusBadge status={delivery.status} size="small" />
-//         </View>
-
-//         {/* Company Name */}
-//         <Text style={styles.companyName} numberOfLines={1}>
-//           {delivery.companyName}
-//         </Text>
-
-//         {/* Address */}
-//         <View style={styles.row}>
-//           <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
-//           <Text style={styles.address} numberOfLines={1}>
-//             {delivery.destination}
-//           </Text>
-//         </View>
-
-//         {/* Footer Row */}
-//         <View style={styles.footer}>
-//           <View style={styles.footerItem}>
-//             <Ionicons name="business-outline" size={14} color={colors.textSecondary} />
-//             <Text style={styles.footerText}>{delivery.lga}</Text>
-//           </View>
-//           <View style={styles.footerItem}>
-//             <Ionicons name="mail-outline" size={14} color={colors.textSecondary} />
-//             <Text style={styles.footerText}>{delivery.letterCount} letter{delivery.letterCount > 1 ? 's' : ''}</Text>
-//           </View>
-//           <Ionicons name="chevron-forward" size={20} color={colors.textLight} />
-//         </View>
-//       </View>
-//     </TouchableOpacity>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   card: {
-//     backgroundColor: colors.white,
-//     borderRadius: 12,
-//     marginBottom: 12,
-//     flexDirection: 'row',
-//     overflow: 'hidden',
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 1 },
-//     shadowOpacity: 0.05,
-//     shadowRadius: 4,
-//     elevation: 2,
-//   },
-//   priorityBar: {
-//     width: 4,
-//   },
-//   content: {
-//     flex: 1,
-//     padding: 16,
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: 8,
-//   },
-//   headerLeft: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 8,
-//   },
-//   scheduleId: {
-//     fontSize: 12,
-//     color: colors.textSecondary,
-//     fontWeight: '500',
-//   },
-//   priorityBadge: {
-//     paddingHorizontal: 8,
-//     paddingVertical: 2,
-//     borderRadius: 4,
-//   },
-//   priorityText: {
-//     fontSize: 10,
-//     fontWeight: '600',
-//   },
-//   companyName: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     color: colors.text,
-//     marginBottom: 6,
-//   },
-//   row: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 6,
-//     marginBottom: 12,
-//   },
-//   address: {
-//     flex: 1,
-//     fontSize: 13,
-//     color: colors.textSecondary,
-//   },
-//   footer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 16,
-//   },
-//   footerItem: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     gap: 4,
-//   },
-//   footerText: {
-//     fontSize: 12,
-//     color: colors.textSecondary,
-//   },
-// });
-
 import { useAuthStore } from "@/src/store/authStore";
 import { useDeliveryStore } from "@/src/store/deliveryStore";
 import { Delivery } from "@/src/types";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { StatusBadge } from "./StatusBadge";
+import { colors } from "@/src/theme/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { cardStyles } from "@/src/styles/delivery";
 
 export function DeliveryCard({
   id,
   delivery,
 }: {
-  id: number;
+  id: string; // Changed from number to string
   delivery: Delivery;
 }) {
   const { user } = useAuthStore();
   const updateStatus = useDeliveryStore((s) => s.updateDeliveryStatus);
 
+  if (!delivery)
+    return (
+      <View style={cardStyles.container}>
+        <Text style={cardStyles.errorText}>Delivery details Not Found</Text>
+      </View>
+    );
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return "checkmark-circle";
+      case "returned":
+        return "close-circle";
+      case "pending_approval":
+        return "time-outline";
+      default:
+        return "mail";
+    }
+  };
+
+  const getStatusIconColor = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return colors.success;
+      case "returned":
+        return colors.danger;
+      case "pending_approval":
+        return colors.warning;
+      default:
+        return colors.primary;
+    }
+  };
+
   return (
-    <View
-      style={{
-        padding: 16,
-        backgroundColor: "#fff",
-        marginBottom: 12,
-        borderRadius: 10,
-      }}
-    >
-      <Text style={{ fontWeight: "600" }}>{delivery.companyName}</Text>
-      <Text>{delivery.destination}</Text>
+    <View style={cardStyles.card}>
+      {/* Card Header */}
+      <View style={cardStyles.header}>
+        <View style={cardStyles.headerLeft}>
+          <Ionicons
+            name={getStatusIcon(delivery.status) as any}
+            size={24}
+            color={getStatusIconColor(delivery.status)}
+          />
+          <View style={cardStyles.headerContent}>
+            <Text style={cardStyles.scheduleId}>{delivery?.scheduleId}</Text>
+            <Text style={cardStyles.companyName} numberOfLines={1}>
+              {delivery.companyName}
+            </Text>
+          </View>
+        </View>
+        <StatusBadge status={delivery.status} />
+      </View>
 
-      <StatusBadge status={delivery.status} />
+      {/* Card Body */}
+      <View style={cardStyles.body}>
+        <View style={cardStyles.addressRow}>
+          <Ionicons
+            name="location-outline"
+            size={14}
+            color={colors.textSecondary}
+          />
+          <Text style={cardStyles.address} numberOfLines={1}>
+            {delivery.destination}
+          </Text>
+        </View>
 
+        <View style={cardStyles.footer}>
+          <View style={cardStyles.lgaBadge}>
+            <Text style={cardStyles.lgaText}>{delivery.lga}</Text>
+          </View>
+          <View
+            style={[
+              cardStyles.priorityBadge,
+              {
+                backgroundColor:
+                  delivery.priority === "URGENT"
+                    ? colors.danger + "20"
+                    : colors.info + "20",
+              },
+            ]}
+          >
+            <Text
+              style={[
+                cardStyles.priorityText,
+                {
+                  color:
+                    delivery.priority === "URGENT" ? colors.danger : colors.info,
+                },
+              ]}
+            >
+              {delivery.priority}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Action Button */}
       {user?.role === "courier" && delivery.status === "pending_approval" && (
         <TouchableOpacity
           onPress={() => updateStatus(delivery.id, "delivered")}
-          style={{
-            marginTop: 10,
-            backgroundColor: "#0d6efd",
-            padding: 10,
-            borderRadius: 6,
-          }}
+          style={cardStyles.actionButton}
         >
-          <Text style={{ color: "#fff", textAlign: "center" }}>
-            Mark as Delivered
-          </Text>
+          <Ionicons name="checkmark" size={18} color={colors.white} />
+          <Text style={cardStyles.actionButtonText}>Mark as Delivered</Text>
         </TouchableOpacity>
       )}
     </View>

@@ -1,11 +1,12 @@
 import type {
   ApiResponse,
   Delivery,
-  DeliveryStatus,
+  
   LoginResponse,
   PODData,
   User,
 } from "../types";
+import { DeliveryStatus } from "../types/delivery.types";
 import { mockDeliveries } from "./mockData";
 
 // Simulated delay for mock API calls
@@ -115,7 +116,7 @@ export const api = {
     if (delivery) {
       delivery.status = status;
       if (notes) delivery.notes = notes;
-      if (status === "delivered" || status === "returned") {
+      if (status === "completed" || status === "returned") {
         delivery.completedAt = new Date().toISOString();
       }
     }
@@ -130,7 +131,7 @@ export const api = {
     const delivery = mockDeliveries.find((d) => d.id === pod.deliveryId);
     if (delivery) {
       delivery.pod = pod;
-      delivery.status = "delivered";
+      delivery.status = "completed";
       delivery.completedAt = new Date().toISOString();
     }
 

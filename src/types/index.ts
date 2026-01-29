@@ -1,9 +1,6 @@
-// Letter/Delivery Status Types
-export type DeliveryStatus =
-  | "pending_approval"
-  | "delivered"
-  | "returned";
+import { DeliveryStatus } from "./delivery.types";
 
+// Letter/Delivery Status Types
 export type Priority = "NORMAL" | "URGENT";
 
 // Core Data Types

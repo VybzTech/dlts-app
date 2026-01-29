@@ -1,12 +1,12 @@
+import { DeliveryStatus } from "@/src/types/delivery.types";
 import { Text, View } from "react-native";
-import { DeliveryStatus } from "@/src/types";
 
 const colorMap: Record<DeliveryStatus, string> = {
-  assigned: "#6c757d",
-  picked_up: "#0d6efd",
-  en_route: "#0dcaf0",
-  arrived: "#ffc107",
-  delivered: "#198754",
+  // assigned: "#6c757d",
+  // pending_approval: "#0d6efd",
+  // en_route: "#0dcaf0",
+  // arrived: "#ffc107",
+  completed: "#198754",
   returned: "#dc3545",
 };
 
