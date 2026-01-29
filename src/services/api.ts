@@ -1,13 +1,9 @@
 import type {
   ApiResponse,
   Delivery,
-  
-  LoginResponse,
-  PODData,
-  User,
+  User
 } from "../types";
 import { DeliveryStatus } from "../types/delivery.types";
-import { mockDeliveries } from "./mockData";
 
 // Simulated delay for mock API calls
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,97 +60,41 @@ const mockUsers: { email: string; password: string; user: User }[] = [
   },
 ];
 
-// Mock API Service
+import { authService } from "../api/services/auth.service";
+import { deliveryService } from "../api/services/delivery.service";
+import { podService } from "../api/services/pod.service";
+
+// Real API Service
 export const api = {
   // Authentication
-  login: async (email: string, password: string): Promise<LoginResponse> => {
-    await delay(1000);
-
-    // Find user by email (case-insensitive)
-    const foundUser = mockUsers.find(
-      (u) =>
-        u.email.toLowerCase() === email.toLowerCase() &&
-        u.password === password,
-    );
-
-    if (foundUser) {
-      return { user: foundUser.user };
-    }
-
-    throw new Error("Invalid email or password");
-  },
+  login: authService.login,
+  signup: authService.signup,
 
   // Deliveries
-  getDeliveries: async (): Promise<Delivery[]> => {
-    await delay(800);
-    return [...mockDeliveries];
-  },
-
-  getDeliveryById: async (id: string): Promise<Delivery | undefined> => {
-    await delay(300);
-    return mockDeliveries.find((d) => d.id === id);
-  },
-
-  // Deliveries
+  getDeliveries: deliveryService.getDeliveries,
+  getDeliveryById: deliveryService.getDeliveryById,
+  
   getCourierDeliveries: async (courierId: number): Promise<Delivery[]> => {
-    await delay(800);
-    return [
-      ...mockDeliveries.filter(
-        (d) => d?.assignedCourierId === `COU-${courierId}`,
-      ),
-    ];
+    // If the backend has a specific courier endpoint, use it. 
+    // Otherwise filter from all deliveries for now.
+    const all = await deliveryService.getDeliveries();
+    return all.filter(d => d.assignedCourierId === `COU-${courierId}`);
   },
 
-  updateDeliveryStatus: async (
-    id: string,
-    status: DeliveryStatus,
-    notes?: string,
-  ): Promise<ApiResponse<null>> => {
-    await delay(500);
-
-    const delivery = mockDeliveries.find((d) => d.id === id);
-    if (delivery) {
-      delivery.status = status;
-      if (notes) delivery.notes = notes;
-      if (status === "completed" || status === "returned") {
-        delivery.completedAt = new Date().toISOString();
-      }
-    }
-
-    return { success: true, message: "Status updated successfully" };
-  },
+  updateDeliveryStatus: deliveryService.updateDeliveryStatus,
 
   // POD Submission
-  submitPOD: async (pod: PODData): Promise<ApiResponse<null>> => {
-    await delay(1500);
-
-    const delivery = mockDeliveries.find((d) => d.id === pod.deliveryId);
-    if (delivery) {
-      delivery.pod = pod;
-      delivery.status = "completed";
-      delivery.completedAt = new Date().toISOString();
-    }
-
-    return { success: true, message: "POD submitted successfully" };
-  },
+  submitPOD: podService.submitPOD,
 
   // Mark delivery as returned/failed
   markReturned: async (
     id: string,
     reason: string,
   ): Promise<ApiResponse<null>> => {
-    await delay(500);
-
-    const delivery = mockDeliveries.find((d) => d.id === id);
-    if (delivery) {
-      delivery.status = "returned";
-      delivery.notes = reason;
-      delivery.completedAt = new Date().toISOString();
-    }
-
-    return { success: true, message: "Delivery marked as returned" };
+    return deliveryService.updateDeliveryStatus(id, "returned" as DeliveryStatus, reason);
   },
 };
+
 
 // Return failure reasons
 export const failureReasons = [

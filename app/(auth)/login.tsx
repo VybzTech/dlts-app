@@ -65,7 +65,7 @@ export default function AuthLoginScreen() {
     setIsLoading(true);
     try {
       const response = await api.login(email.trim(), password);
-      login(response.user);
+      login(response.user, response.token);
       console.log(response.user);
       // Navigate to tabs after successful login
       // router.replace("/(tabs)");

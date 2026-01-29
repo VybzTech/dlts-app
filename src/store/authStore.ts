@@ -7,7 +7,8 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (user: User) => Promise<void>;
+  token: string | null;
+  login: (user: User, token?: string) => Promise<void>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   // Check if store has been hydrated from AsyncStorage
@@ -19,20 +20,18 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
       isLoading: false,
       isHydrated: false,
       
-      login: async (user: User) => {
-        set({ isLoading: true });
-        try {
-          axios.post("1456789", body)
-          set({ user, isAuthenticated: true, isLoading: false });
-        } catch (error) {
-          console.error("Login error:", error);
-          set({ isLoading: false });
-          throw error;
-        }
+      login: async (user: User, token?: string) => {
+        set({ 
+          user, 
+          token: token || null, 
+          isAuthenticated: true, 
+          isLoading: false 
+        });
       },
       
       logout: async () => {
@@ -68,6 +67,7 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         user: state.user,
+        token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
