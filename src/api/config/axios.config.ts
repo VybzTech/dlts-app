@@ -1,17 +1,27 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
-// In React Native, localhost can be tricky. 
+import { Platform } from "react-native";
+
+// In React Native, localhost can be tricky.
 // For Android Emulator, use 10.0.2.2.
 // For physical devices or iOS, use the local IP.
-// But the user specifically said '9989 localhost'.
-const BASE_URL = 'http://localhost:9989/api/v1';
+const getBaseUrl = () => {
+  if (Platform.OS === "android") {
+    // Android emulator uses 10.0.2.2 to reach host machine
+    return "http://192.168.137.1:9989/api/v1";
+  }
+  // iOS simulator can use localhost
+  return "http://192.168.137.1:9989/api/v1";
+};
+
+const BASE_URL = getBaseUrl();
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -19,7 +29,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     try {
-      const storageData = await AsyncStorage.getItem('dlts-auth-storage');
+      const storageData = await AsyncStorage.getItem("dlts-auth-storage");
       if (storageData) {
         const { state } = JSON.parse(storageData);
         if (state?.token) {
@@ -27,13 +37,13 @@ axiosInstance.interceptors.request.use(
         }
       }
     } catch (error) {
-      console.error('Error fetching token from storage:', error);
+      console.error("Error fetching token from storage:", error);
     }
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

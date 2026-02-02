@@ -26,7 +26,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     const { allDeliveries } = get();
     return {
       total: allDeliveries.length,
-      delivered: allDeliveries.filter((d) => d.status === "delivered").length,
+      delivered: allDeliveries.filter((d) => d.status === "completed").length,
       pending: allDeliveries.filter((d) => d.status === "pending_approval").length,
     };
   },

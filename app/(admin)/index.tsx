@@ -1,4 +1,4 @@
-// import { useAdminStore } from "@/src/store/adminStore";
+// import { useAdminStore } from "@/store/adminStore";
 // import { colors, statusLabels } from "@/src/theme/colors";
 // import { Delivery } from "@/src/types";
 // import { Ionicons } from "@expo/vector-icons";
@@ -172,21 +172,40 @@
 //   );
 // }
 
-
-
 // app/(admin)/index.tsx - Admin Dashboard
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/src/theme/colors';
+import React from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "@/src/styles/theme/colors";
 
 export default function AdminDashboard() {
   const stats = [
-    { label: 'Total Deliveries', value: '247', icon: 'mail', color: colors.primary },
-    { label: 'Pending', value: '34', icon: 'hourglass', color: colors.warning },
-    { label: 'Delivered', value: '195', icon: 'checkmark-done-circle', color: colors.success },
-    { label: 'Failed', value: '18', icon: 'close-circle', color: colors.danger },
+    {
+      label: "Total Deliveries",
+      value: "247",
+      icon: "mail",
+      color: colors.primary,
+    },
+    { label: "Pending", value: "34", icon: "hourglass", color: colors.warning },
+    {
+      label: "Delivered",
+      value: "195",
+      icon: "checkmark-done-circle",
+      color: colors.success,
+    },
+    {
+      label: "Failed",
+      value: "18",
+      icon: "close-circle",
+      color: colors.danger,
+    },
   ];
 
   return (
@@ -202,8 +221,17 @@ export default function AdminDashboard() {
         <View style={styles.statsGrid}>
           {stats.map((stat, idx) => (
             <View key={idx} style={styles.statCard}>
-              <View style={[styles.statIcon, { backgroundColor: stat.color + '20' }]}>
-                <Ionicons name={stat.icon as any} size={24} color={stat.color} />
+              <View
+                style={[
+                  styles.statIcon,
+                  { backgroundColor: stat.color + "20" },
+                ]}
+              >
+                <Ionicons
+                  name={stat.icon as any}
+                  size={24}
+                  color={stat.color}
+                />
               </View>
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
@@ -218,7 +246,9 @@ export default function AdminDashboard() {
             <Ionicons name="people-outline" size={24} color={colors.primary} />
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Manage Couriers</Text>
-              <Text style={styles.actionSubtitle}>Assign deliveries & track performance</Text>
+              <Text style={styles.actionSubtitle}>
+                Assign deliveries & track performance
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.border} />
           </TouchableOpacity>
@@ -227,7 +257,9 @@ export default function AdminDashboard() {
             <Ionicons name="mail-outline" size={24} color={colors.success} />
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>View All Letters</Text>
-              <Text style={styles.actionSubtitle}>Monitor all submissions & deliveries</Text>
+              <Text style={styles.actionSubtitle}>
+                Monitor all submissions & deliveries
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.border} />
           </TouchableOpacity>
@@ -236,7 +268,9 @@ export default function AdminDashboard() {
             <Ionicons name="analytics-outline" size={24} color={colors.info} />
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>View Analytics</Text>
-              <Text style={styles.actionSubtitle}>Detailed performance metrics</Text>
+              <Text style={styles.actionSubtitle}>
+                Detailed performance metrics
+              </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={colors.border} />
           </TouchableOpacity>
@@ -247,9 +281,15 @@ export default function AdminDashboard() {
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           {[1, 2, 3].map((_, idx) => (
             <View key={idx} style={styles.activityCard}>
-              <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+              <Ionicons
+                name="checkmark-circle"
+                size={20}
+                color={colors.success}
+              />
               <View style={styles.activityContent}>
-                <Text style={styles.activityText}>Delivery SCH-2024-{String(idx + 1).padStart(3, '0')} completed</Text>
+                <Text style={styles.activityText}>
+                  Delivery SCH-2024-{String(idx + 1).padStart(3, "0")} completed
+                </Text>
                 <Text style={styles.activityTime}>2 hours ago</Text>
               </View>
             </View>
@@ -274,7 +314,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 4,
   },
@@ -283,18 +323,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     padding: 16,
     gap: 12,
   },
   statCard: {
-    width: '48%',
+    width: "48%",
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -304,20 +344,20 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   statValue: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
   },
   statLabel: {
     fontSize: 12,
     color: colors.textSecondary,
     marginTop: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
   section: {
     paddingHorizontal: 16,
@@ -325,19 +365,19 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 12,
   },
   actionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
     gap: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -348,7 +388,7 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
   },
   actionSubtitle: {
@@ -357,14 +397,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   activityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 12,
     marginBottom: 8,
     gap: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -376,7 +416,7 @@ const styles = StyleSheet.create({
   activityText: {
     fontSize: 13,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   activityTime: {
     fontSize: 11,
@@ -384,15 +424,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   courierCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     marginHorizontal: 16,
     marginBottom: 10,
     gap: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -403,12 +443,12 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   courierAvatarText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
   },
   courierContent: {
@@ -416,17 +456,17 @@ const styles = StyleSheet.create({
   },
   courierName: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
   },
   courierStats: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     marginTop: 6,
   },
   courierStat: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   courierStatText: {
@@ -434,23 +474,23 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   letterCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 14,
     marginHorizontal: 16,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
   letterLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     flex: 1,
   },
@@ -460,12 +500,12 @@ const styles = StyleSheet.create({
   letterSchedule: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   letterCompany: {
     fontSize: 14,
     color: colors.text,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 2,
   },
   statusBadge: {
@@ -475,18 +515,18 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'capitalize',
+    fontWeight: "600",
+    textTransform: "capitalize",
   },
   placeholderSection: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 16,
   },
   placeholderTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginTop: 12,
   },
@@ -494,10 +534,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
   profileHeader: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 28,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
@@ -508,18 +548,18 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 12,
   },
   avatarText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
   },
   name: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.text,
     marginBottom: 4,
   },
@@ -533,7 +573,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -541,13 +581,13 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 12,
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     paddingVertical: 8,
   },
@@ -562,7 +602,7 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 14,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   divider: {
     height: 1,
@@ -570,9 +610,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 16,
     marginTop: 24,
     marginBottom: 32,
@@ -584,7 +624,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.danger,
   },
 });

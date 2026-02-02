@@ -1,13 +1,16 @@
-import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
+import React from "react";
+import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
+import { colors } from "../../styles/theme/colors";
 
 interface LoadingSpinnerProps {
   message?: string;
   fullScreen?: boolean;
 }
 
-export function LoadingSpinner({ message, fullScreen = false }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  message,
+  fullScreen = false,
+}: LoadingSpinnerProps) {
   if (fullScreen) {
     return (
       <View style={styles.fullScreen}>
@@ -28,13 +31,13 @@ export function LoadingSpinner({ message, fullScreen = false }: LoadingSpinnerPr
 const styles = StyleSheet.create({
   container: {
     padding: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   fullScreen: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.background,
   },
   message: {

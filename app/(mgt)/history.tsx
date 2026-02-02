@@ -1,9 +1,15 @@
-import { useMgtStore } from "@/src/store/mgtStore";
-import { colors } from "@/src/theme/colors";
+import { useMgtStore } from "@/store/mgtStore";
+import { colors } from "@/src/styles/theme/colors";
 import { Delivery } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ManagementHistory() {
@@ -26,7 +32,11 @@ export default function ManagementHistory() {
           <View
             style={[
               styles.statusIcon,
-              { backgroundColor: isDelivered ? colors.success + "15" : colors.danger + "15" },
+              {
+                backgroundColor: isDelivered
+                  ? colors.success + "15"
+                  : colors.danger + "15",
+              },
             ]}
           >
             <Ionicons
@@ -83,7 +93,11 @@ export default function ManagementHistory() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="time-outline" size={48} color={colors.textSecondary} />
+            <Ionicons
+              name="time-outline"
+              size={48}
+              color={colors.textSecondary}
+            />
             <Text style={styles.emptyTitle}>No History</Text>
             <Text style={styles.emptyText}>
               Completed deliveries will appear here

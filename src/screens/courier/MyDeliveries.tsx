@@ -22,12 +22,11 @@
 //   );
 // }
 
-
 // COURIER DASHBOARD - Main Screen
 // ============================================================================
 // app/(courier)/index.tsx
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -36,78 +35,78 @@ import {
   RefreshControl,
   TouchableOpacity,
   SafeAreaView,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useCourierStore } from '@/src/store/courierStore';
-import { colors } from '@/src/theme/colors';
-import type { Delivery } from '@/src/types';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useCourierStore } from "@/store/courierStore";
+import { colors } from "@/src/styles/theme/colors";
+import type { Delivery } from "@/src/types";
 
 // Mock data for courier
 const MOCK_COURIER_DELIVERIES: Delivery[] = [
   {
-    id: '1',
-    scheduleId: 'SCH-2024-001',
-    companyName: 'Nestle Nigeria PLC',
-    title: 'Document Delivery',
-    destination: '29, Abisogun Street, Ikeja',
-    lga: 'IKEJA',
-    liabilityYear: '2024',
+    id: "1",
+    scheduleId: "SCH-2024-001",
+    companyName: "Nestle Nigeria PLC",
+    title: "Document Delivery",
+    destination: "29, Abisogun Street, Ikeja",
+    lga: "IKEJA",
+    liabilityYear: "2024",
     liabilityAmount: 50000,
-    status: 'assigned',
-    priority: 'URGENT',
+    status: "assigned",
+    priority: "URGENT",
     submittedAt: new Date().toISOString(),
     assignedAt: new Date().toISOString(),
-    contactPerson: 'Mr. Johnson',
-    contactPhone: '08012345678',
+    contactPerson: "Mr. Johnson",
+    contactPhone: "08012345678",
     coordinates: { latitude: 6.6018, longitude: 3.3515 },
   },
   {
-    id: '2',
-    scheduleId: 'SCH-2024-002',
-    companyName: 'Unilever Nigeria',
-    title: 'Liability Documents',
-    destination: '21, Mercy Eneli Street, Surulere',
-    lga: 'SURULERE',
-    liabilityYear: '2024',
+    id: "2",
+    scheduleId: "SCH-2024-002",
+    companyName: "Unilever Nigeria",
+    title: "Liability Documents",
+    destination: "21, Mercy Eneli Street, Surulere",
+    lga: "SURULERE",
+    liabilityYear: "2024",
     liabilityAmount: 75000,
-    status: 'assigned',
-    priority: 'NORMAL',
+    status: "assigned",
+    priority: "NORMAL",
     submittedAt: new Date().toISOString(),
     assignedAt: new Date().toISOString(),
-    contactPerson: 'Mrs. Adeyemi',
-    contactPhone: '08098765432',
+    contactPerson: "Mrs. Adeyemi",
+    contactPhone: "08098765432",
     coordinates: { latitude: 6.4969, longitude: 3.3562 },
   },
   {
-    id: '3',
-    scheduleId: 'SCH-2024-003',
-    companyName: 'MTN Nigeria Communications',
-    title: 'Annual Report',
-    destination: '1, Tayo Aderinokun Street, Victoria Island',
-    lga: 'LAGOS ISLAND',
-    liabilityYear: '2024',
+    id: "3",
+    scheduleId: "SCH-2024-003",
+    companyName: "MTN Nigeria Communications",
+    title: "Annual Report",
+    destination: "1, Tayo Aderinokun Street, Victoria Island",
+    lga: "LAGOS ISLAND",
+    liabilityYear: "2024",
     liabilityAmount: 100000,
-    status: 'en_route',
-    priority: 'URGENT',
+    status: "en_route",
+    priority: "URGENT",
     submittedAt: new Date().toISOString(),
     assignedAt: new Date(Date.now() - 3600000).toISOString(),
     pickedUpAt: new Date(Date.now() - 1800000).toISOString(),
-    contactPerson: 'Mr. Okonkwo',
-    contactPhone: '08056789012',
+    contactPerson: "Mr. Okonkwo",
+    contactPhone: "08056789012",
     coordinates: { latitude: 6.4281, longitude: 3.4278 },
   },
   {
-    id: '4',
-    scheduleId: 'SCH-2024-004',
-    companyName: 'Access Bank Nigeria',
-    title: 'Financial Documents',
-    destination: '5, Ladoke Akintola Street, Lekki',
-    lga: 'LEKKI',
-    liabilityYear: '2024',
+    id: "4",
+    scheduleId: "SCH-2024-004",
+    companyName: "Access Bank Nigeria",
+    title: "Financial Documents",
+    destination: "5, Ladoke Akintola Street, Lekki",
+    lga: "LEKKI",
+    liabilityYear: "2024",
     liabilityAmount: 120000,
-    status: 'delivered',
-    priority: 'NORMAL',
+    status: "delivered",
+    priority: "NORMAL",
     submittedAt: new Date().toISOString(),
     assignedAt: new Date(Date.now() - 7200000).toISOString(),
     completedAt: new Date(Date.now() - 1800000).toISOString(),
@@ -115,12 +114,13 @@ const MOCK_COURIER_DELIVERIES: Delivery[] = [
   },
 ];
 
-type StatusFilter = 'all' | 'pending' | 'in_progress' | 'completed';
+type StatusFilter = "all" | "pending" | "in_progress" | "completed";
 
 export default function CourierDashboard() {
   const router = useRouter();
-  const { assignedDeliveries, setAssignedDeliveries, getStats } = useCourierStore();
-  const [filter, setFilter] = useState<StatusFilter>('all');
+  const { assignedDeliveries, setAssignedDeliveries, getStats } =
+    useCourierStore();
+  const [filter, setFilter] = useState<StatusFilter>("all");
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -133,10 +133,10 @@ export default function CourierDashboard() {
     setIsLoading(true);
     try {
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setAssignedDeliveries(MOCK_COURIER_DELIVERIES);
     } catch (error) {
-      console.error('Failed to load deliveries:', error);
+      console.error("Failed to load deliveries:", error);
     } finally {
       setIsLoading(false);
     }
@@ -150,15 +150,15 @@ export default function CourierDashboard() {
 
   const getFilteredDeliveries = (): Delivery[] => {
     switch (filter) {
-      case 'pending':
-        return assignedDeliveries.filter(d => d.status === 'assigned');
-      case 'in_progress':
-        return assignedDeliveries.filter(d =>
-          ['picked_up', 'en_route', 'arrived'].includes(d.status)
+      case "pending":
+        return assignedDeliveries.filter((d) => d.status === "assigned");
+      case "in_progress":
+        return assignedDeliveries.filter((d) =>
+          ["picked_up", "en_route", "arrived"].includes(d.status),
         );
-      case 'completed':
-        return assignedDeliveries.filter(d =>
-          ['delivered', 'returned'].includes(d.status)
+      case "completed":
+        return assignedDeliveries.filter((d) =>
+          ["delivered", "returned"].includes(d.status),
         );
       default:
         return assignedDeliveries;
@@ -184,9 +184,9 @@ export default function CourierDashboard() {
             styles.priorityBadge,
             {
               backgroundColor:
-                item.priority === 'URGENT'
-                  ? colors.danger + '20'
-                  : colors.warning + '20',
+                item.priority === "URGENT"
+                  ? colors.danger + "20"
+                  : colors.warning + "20",
             },
           ]}
         >
@@ -194,7 +194,8 @@ export default function CourierDashboard() {
             style={[
               styles.priorityText,
               {
-                color: item.priority === 'URGENT' ? colors.danger : colors.warning,
+                color:
+                  item.priority === "URGENT" ? colors.danger : colors.warning,
               },
             ]}
           >
@@ -220,20 +221,20 @@ export default function CourierDashboard() {
               styles.statusDot,
               {
                 backgroundColor:
-                  item.status === 'assigned'
+                  item.status === "assigned"
                     ? colors.warning
-                    : item.status === 'delivered'
+                    : item.status === "delivered"
                       ? colors.success
                       : colors.primary,
               },
             ]}
           />
           <Text style={styles.statusText}>
-            {item.status === 'assigned'
-              ? 'Pending'
-              : item.status === 'delivered'
-                ? 'Delivered'
-                : 'In Progress'}
+            {item.status === "assigned"
+              ? "Pending"
+              : item.status === "delivered"
+                ? "Delivered"
+                : "In Progress"}
           </Text>
         </View>
       </View>
@@ -245,8 +246,8 @@ export default function CourierDashboard() {
       <Ionicons name="cube-outline" size={64} color={colors.textLight} />
       <Text style={styles.emptyTitle}>No Deliveries</Text>
       <Text style={styles.emptyText}>
-        {filter === 'all'
-          ? 'You have no assigned deliveries at the moment'
+        {filter === "all"
+          ? "You have no assigned deliveries at the moment"
           : `No ${filter} deliveries`}
       </Text>
     </View>
@@ -275,14 +276,11 @@ export default function CourierDashboard() {
 
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
-        {(['all', 'pending', 'in_progress', 'completed'] as StatusFilter[]).map(
+        {(["all", "pending", "in_progress", "completed"] as StatusFilter[]).map(
           (f) => (
             <TouchableOpacity
               key={f}
-              style={[
-                styles.filterTab,
-                filter === f && styles.filterTabActive,
-              ]}
+              style={[styles.filterTab, filter === f && styles.filterTabActive]}
               onPress={() => setFilter(f)}
             >
               <Text
@@ -291,16 +289,16 @@ export default function CourierDashboard() {
                   filter === f && styles.filterTabTextActive,
                 ]}
               >
-                {f === 'all'
-                  ? 'All'
-                  : f === 'pending'
-                    ? 'Pending'
-                    : f === 'in_progress'
-                      ? 'In Progress'
-                      : 'Completed'}
+                {f === "all"
+                  ? "All"
+                  : f === "pending"
+                    ? "Pending"
+                    : f === "in_progress"
+                      ? "In Progress"
+                      : "Completed"}
               </Text>
             </TouchableOpacity>
-          )
+          ),
         )}
       </View>
 
@@ -330,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   statsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
@@ -340,8 +338,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: 12,
     padding: 12,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -349,7 +347,7 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginTop: 4,
   },
@@ -359,7 +357,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   filterContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 16,
     paddingBottom: 12,
     gap: 8,
@@ -379,7 +377,7 @@ const styles = StyleSheet.create({
   filterTabText: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   filterTabTextActive: {
     color: colors.white,
@@ -393,16 +391,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: 12,
   },
   scheduleInfo: {
@@ -411,11 +409,11 @@ const styles = StyleSheet.create({
   scheduleId: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   companyName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginTop: 2,
   },
@@ -427,11 +425,11 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   destination: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginBottom: 12,
   },
@@ -441,9 +439,9 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   lgaBadge: {
     backgroundColor: colors.background,
@@ -454,11 +452,11 @@ const styles = StyleSheet.create({
   lgaText: {
     fontSize: 11,
     color: colors.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   statusIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
   },
   statusDot: {
@@ -469,16 +467,16 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 60,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginTop: 16,
   },

@@ -1,6 +1,6 @@
 // app/_layout.tsx
-import { useAuthStore } from "@/src/store/authStore";
-import { colors } from "@/src/theme/colors";
+import { useAuthStore } from "@/store/authStore";
+import { colors } from "@/src/styles/theme/colors";
 import {
   Stack,
   useRootNavigationState,
@@ -33,8 +33,8 @@ export default function RootLayout() {
         // Route based on user role
         const roleRoutes = {
           courier: "/(courier)",
-          admin: "/(admin)",
-          mgt: "/(mgt)",
+          // admin: "/(admin)",
+          // mgt: "/(mgt)",
         };
         const route =
           roleRoutes[user?.role as keyof typeof roleRoutes] || "/(auth)/login";
@@ -51,6 +51,8 @@ export default function RootLayout() {
   const { isLoading, isHydrated } = useAuthStore();
   useProtectedRoute();
   AppBootstrap();
+
+  console.log(isLoading || !isHydrated || !rootNavigation?.key);
 
   if (isLoading || !isHydrated || !rootNavigation?.key) {
     return (
@@ -76,7 +78,7 @@ export default function RootLayout() {
           <Stack.Screen name="(mgt)" />
           */}
       </Stack>
-      <StatusBar style="auto" />
+      {/* <StatusBar style="auto" /> */}
     </>
   );
 }

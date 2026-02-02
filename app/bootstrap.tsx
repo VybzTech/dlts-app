@@ -1,11 +1,11 @@
 import { fetchInitialData } from "@/src/services/bootstrapService";
-import { useAdminStore } from "@/src/store/adminStore";
-import { useAuthStore } from "@/src/store/authStore";
-import { useCourierStore } from "@/src/store/courierStore";
-import { useDeliveryStore } from "@/src/store/deliveryStore";
-import { useMgtStore } from "@/src/store/mgtStore";
+import { useAdminStore } from "@/store/adminStore";
+import { useAuthStore } from "@/store/authStore";
+import { useCourierStore } from "@/store/courierStore";
+import { useDeliveryStore } from "@/store/deliveryStore";
+import { useMgtStore } from "@/store/mgtStore";
 import { useEffect } from "react";
-+
+
 export default function AppBootstrap() {
   const { user, isAuthenticated } = useAuthStore();
 

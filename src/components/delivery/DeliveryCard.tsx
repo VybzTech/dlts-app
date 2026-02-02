@@ -1,9 +1,9 @@
-import { useAuthStore } from "@/src/store/authStore";
-import { useDeliveryStore } from "@/src/store/deliveryStore";
+import { useAuthStore } from "@/store/authStore";
+import { useDeliveryStore } from "@/store/deliveryStore";
 import { Delivery } from "@/src/types";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { StatusBadge } from "./StatusBadge";
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { cardStyles } from "@/src/styles/delivery";
 
@@ -103,7 +103,9 @@ export function DeliveryCard({
                 cardStyles.priorityText,
                 {
                   color:
-                    delivery.priority === "URGENT" ? colors.danger : colors.info,
+                    delivery.priority === "URGENT"
+                      ? colors.danger
+                      : colors.info,
                 },
               ]}
             >

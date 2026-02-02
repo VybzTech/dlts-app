@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { colors } from "../theme/colors";
+import { colors } from "./theme/colors";
 
 export const historyStyles = StyleSheet.create({
   container: {
@@ -15,7 +15,7 @@ export const historyStyles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 4,
   },
@@ -28,14 +28,14 @@ export const historyStyles = StyleSheet.create({
     paddingTop: 12,
   },
   historyCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: colors.white,
     padding: 14,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -43,8 +43,8 @@ export const historyStyles = StyleSheet.create({
   },
   historyLeft: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   historyText: {
@@ -53,12 +53,12 @@ export const historyStyles = StyleSheet.create({
   historySchedule: {
     fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   historyCompany: {
     fontSize: 14,
     color: colors.text,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 2,
   },
 });

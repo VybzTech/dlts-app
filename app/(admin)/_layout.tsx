@@ -71,7 +71,7 @@
 //   );
 // }
 
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 

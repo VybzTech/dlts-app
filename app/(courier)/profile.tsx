@@ -8,8 +8,8 @@
 // COURIER PROFILE SCREEN (app/(courier)/profile.tsx)
 // ============================================================================
 
-import { useAuthStore } from "@/src/store/authStore";
-import { colors } from "@/src/theme/colors";
+import { useAuthStore } from "@/store/authStore";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback } from "react";
 import {

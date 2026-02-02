@@ -1,9 +1,15 @@
 import { DeliveryCard } from "@/src/components/delivery/DeliveryCard";
-import { useMgtStore } from "@/src/store/mgtStore";
-import { colors } from "@/src/theme/colors";
+import { useMgtStore } from "@/store/mgtStore";
+import { colors } from "@/src/styles/theme/colors";
 import { StatusFilter } from "@/src/types";
 import { useState } from "react";
-import { FlatList, Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const filterOptions: { label: string; value: StatusFilter }[] = [
@@ -35,21 +41,35 @@ export default function ManagementLetters() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Letters Overview</Text>
-        <Text style={styles.headerSubtitle}>All submitted letters and their status</Text>
+        <Text style={styles.headerSubtitle}>
+          All submitted letters and their status
+        </Text>
       </View>
 
       {/* Stats Cards */}
       <View style={styles.statsContainer}>
-        <View style={[styles.statCard, { backgroundColor: colors.primary + "15" }]}>
-          <Text style={[styles.statNumber, { color: colors.primary }]}>{stats.submitted}</Text>
+        <View
+          style={[styles.statCard, { backgroundColor: colors.primary + "15" }]}
+        >
+          <Text style={[styles.statNumber, { color: colors.primary }]}>
+            {stats.submitted}
+          </Text>
           <Text style={styles.statLabel}>Total</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: colors.warning + "15" }]}>
-          <Text style={[styles.statNumber, { color: colors.warning }]}>{stats.pending}</Text>
+        <View
+          style={[styles.statCard, { backgroundColor: colors.warning + "15" }]}
+        >
+          <Text style={[styles.statNumber, { color: colors.warning }]}>
+            {stats.pending}
+          </Text>
           <Text style={styles.statLabel}>Pending</Text>
         </View>
-        <View style={[styles.statCard, { backgroundColor: colors.success + "15" }]}>
-          <Text style={[styles.statNumber, { color: colors.success }]}>{stats.completed}</Text>
+        <View
+          style={[styles.statCard, { backgroundColor: colors.success + "15" }]}
+        >
+          <Text style={[styles.statNumber, { color: colors.success }]}>
+            {stats.completed}
+          </Text>
           <Text style={styles.statLabel}>Completed</Text>
         </View>
       </View>

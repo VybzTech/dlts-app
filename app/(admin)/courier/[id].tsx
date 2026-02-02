@@ -1,5 +1,5 @@
-import { useAdminStore } from "@/src/store/adminStore";
-import { colors } from "@/src/theme/colors";
+import { useAdminStore } from "@/store/adminStore";
+import { colors } from "@/src/styles/theme/colors";
 import { Delivery, User } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -22,29 +22,31 @@ export default function CourierDetailScreen() {
 
   const courier = useMemo(
     () => couriers.find((c) => c.id === id),
-    [couriers, id]
+    [couriers, id],
   );
 
   const courierDeliveries = useMemo(
     () => allDeliveries.filter((d) => d.assignedCourierId === `COU-${id}`),
-    [allDeliveries, id]
+    [allDeliveries, id],
   );
 
   const stats = useMemo(() => {
     const delivered = courierDeliveries.filter((d) => d.status === "delivered");
     const returned = courierDeliveries.filter((d) => d.status === "returned");
-    const pending = courierDeliveries.filter((d) => d.status === "pending_approval");
+    const pending = courierDeliveries.filter(
+      (d) => d.status === "pending_approval",
+    );
     const totalLiability = courierDeliveries.reduce(
       (sum, d) => sum + (d.liabilityAmount || 0),
-      0
+      0,
     );
     const deliveredLiability = delivered.reduce(
       (sum, d) => sum + (d.liabilityAmount || 0),
-      0
+      0,
     );
     const returnedLiability = returned.reduce(
       (sum, d) => sum + (d.liabilityAmount || 0),
-      0
+      0,
     );
 
     // Get unique LGAs
@@ -52,7 +54,8 @@ export default function CourierDetailScreen() {
 
     // Calculate delivery rate (delivered / total completed)
     const completed = delivered.length + returned.length;
-    const deliveryRate = completed > 0 ? (delivered.length / completed) * 100 : 0;
+    const deliveryRate =
+      completed > 0 ? (delivered.length / completed) * 100 : 0;
 
     return {
       total: courierDeliveries.length,
@@ -100,8 +103,8 @@ export default function CourierDetailScreen() {
       item.status === "delivered"
         ? colors.success
         : item.status === "returned"
-        ? colors.danger
-        : colors.warning;
+          ? colors.danger
+          : colors.warning;
 
     return (
       <TouchableOpacity
@@ -133,7 +136,12 @@ export default function CourierDetailScreen() {
             <Text
               style={[
                 styles.priorityText,
-                { color: item.priority === "URGENT" ? colors.danger : colors.textSecondary },
+                {
+                  color:
+                    item.priority === "URGENT"
+                      ? colors.danger
+                      : colors.textSecondary,
+                },
               ]}
             >
               {item.priority}
@@ -222,7 +230,11 @@ export default function CourierDetailScreen() {
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statBox}>
-            <Ionicons name="documents-outline" size={24} color={colors.primary} />
+            <Ionicons
+              name="documents-outline"
+              size={24}
+              color={colors.primary}
+            />
             <Text style={styles.statValue}>{stats.total}</Text>
             <Text style={styles.statLabel}>Total Letters</Text>
           </View>
@@ -245,19 +257,37 @@ export default function CourierDetailScreen() {
             </View>
           </View>
           <View style={styles.liabilityBreakdown}>
-            <View style={[styles.liabilityBox, { backgroundColor: colors.success + "15" }]}>
-              <Text style={[styles.liabilityBoxLabel, { color: colors.success }]}>
+            <View
+              style={[
+                styles.liabilityBox,
+                { backgroundColor: colors.success + "15" },
+              ]}
+            >
+              <Text
+                style={[styles.liabilityBoxLabel, { color: colors.success }]}
+              >
                 Delivered
               </Text>
-              <Text style={[styles.liabilityBoxValue, { color: colors.success }]}>
+              <Text
+                style={[styles.liabilityBoxValue, { color: colors.success }]}
+              >
                 {formatCurrency(stats.deliveredLiability)}
               </Text>
             </View>
-            <View style={[styles.liabilityBox, { backgroundColor: colors.danger + "15" }]}>
-              <Text style={[styles.liabilityBoxLabel, { color: colors.danger }]}>
+            <View
+              style={[
+                styles.liabilityBox,
+                { backgroundColor: colors.danger + "15" },
+              ]}
+            >
+              <Text
+                style={[styles.liabilityBoxLabel, { color: colors.danger }]}
+              >
                 Returned
               </Text>
-              <Text style={[styles.liabilityBoxValue, { color: colors.danger }]}>
+              <Text
+                style={[styles.liabilityBoxValue, { color: colors.danger }]}
+              >
                 {formatCurrency(stats.returnedLiability)}
               </Text>
             </View>

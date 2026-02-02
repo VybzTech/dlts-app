@@ -1,11 +1,11 @@
 import type {
   Delivery,
-  DeliveryStatus,
   PODData,
   Priority,
   User,
   UserRole,
 } from "../types";
+import { DeliveryStatus } from "../types/delivery.types";
 
 function randomPhone(): string {
   const prefix = ["080", "081", "070", "090", "091"][

@@ -1,5 +1,5 @@
 import { loginStyles } from "@/src/styles/login";
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -21,7 +21,7 @@ interface LoginTools {
   showPassword: boolean;
   setShowPassword: (val: boolean) => void;
   isLoading: boolean;
-  clearFieldError: (val:any) => void;
+  clearFieldError: (val: any) => void;
   handleLogin: () => void;
 }
 

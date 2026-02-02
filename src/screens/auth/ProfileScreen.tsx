@@ -1,8 +1,8 @@
 // TEMP PROFILE SCREEN THAT SHOWS DETAILS DEPENDING ON USER PROFILE
 
-import { useAuthStore, useDeliveryStore } from "@/src/store";
+import { useAuthStore, useDeliveryStore } from "@/store";
 import { profileStyles } from "@/src/styles/profile";
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useCallback } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";

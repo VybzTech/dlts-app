@@ -1,6 +1,6 @@
 import { Icon } from "@/src/hooks/useIcons";
 import { statsStyles } from "@/src/styles/delivery";
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { FilterType } from "@/src/types/delivery.types";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { Dispatch, SetStateAction } from "react";

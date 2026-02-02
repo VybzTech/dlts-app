@@ -1,4 +1,4 @@
-import type { UserRole, DeliveryStatus } from "@/src/types";
+import type { UserRole } from "@/src/types";
 
 export const ROLE_PERMISSIONS = {
   courier: {

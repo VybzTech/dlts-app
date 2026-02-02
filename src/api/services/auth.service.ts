@@ -1,13 +1,17 @@
-import { LoginResponse } from '../../types';
-import axiosInstance from '../config/axios.config';
-import { ENDPOINTS } from '../config/endpoints';
+import { LoginResponse } from "../../types";
+import axiosInstance from "../config/axios.config";
+import { ENDPOINTS } from "../config/endpoints";
 
 export const authService = {
   login: async (email: string, password: string): Promise<LoginResponse> => {
-    const response = await axiosInstance.post<LoginResponse>(ENDPOINTS.AUTH.LOGIN, {
-      email,
-      password,
-    });
+    console.log(axiosInstance.name, email, password, ENDPOINTS.AUTH.LOGIN);
+    const response = await axiosInstance.post<LoginResponse>(
+      ENDPOINTS.AUTH.LOGIN,
+      {
+        email,
+        password,
+      },
+    );
     return response.data;
   },
 

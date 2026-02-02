@@ -1,5 +1,5 @@
-import { useAdminStore } from "@/src/store/adminStore";
-import { colors, statusLabels } from "@/src/theme/colors";
+import { useAdminStore } from "@/store/adminStore";
+import { colors, statusLabels } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -21,7 +21,7 @@ export default function LetterDetailScreen() {
 
   const letter = useMemo(
     () => allDeliveries.find((d) => d.id === id),
-    [allDeliveries, id]
+    [allDeliveries, id],
   );
 
   const assignedCourier = useMemo(() => {
@@ -62,8 +62,8 @@ export default function LetterDetailScreen() {
     letter.status === "delivered"
       ? colors.success
       : letter.status === "returned"
-      ? colors.danger
-      : colors.warning;
+        ? colors.danger
+        : colors.warning;
 
   const priorityColor =
     letter.priority === "URGENT" ? colors.danger : colors.textSecondary;
@@ -87,7 +87,9 @@ export default function LetterDetailScreen() {
         <View style={styles.mainCard}>
           <View style={styles.trackingRow}>
             <Text style={styles.trackingId}>{letter.trackingId}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: statusColor }]}>
+            <View
+              style={[styles.statusBadge, { backgroundColor: statusColor }]}
+            >
               <Text style={styles.statusText}>
                 {statusLabels[letter.status] || letter.status}
               </Text>
@@ -199,22 +201,33 @@ export default function LetterDetailScreen() {
             <Text style={styles.sectionTitle}>Assigned Courier</Text>
             <TouchableOpacity
               style={styles.courierCard}
-              onPress={() => router.push(`/(admin)/courier/${assignedCourier.id}` as any)}
+              onPress={() =>
+                router.push(`/(admin)/courier/${assignedCourier.id}` as any)
+              }
               activeOpacity={0.7}
             >
               <View style={styles.courierAvatar}>
                 <Ionicons name="person" size={24} color={colors.primary} />
               </View>
               <View style={styles.courierInfo}>
-                <Text style={styles.courierName}>{assignedCourier.fullName}</Text>
+                <Text style={styles.courierName}>
+                  {assignedCourier.fullName}
+                </Text>
                 <Text style={styles.courierDetail}>
-                  {assignedCourier.staffId} | {assignedCourier.unit.toUpperCase()} Unit
+                  {assignedCourier.staffId} |{" "}
+                  {assignedCourier.unit.toUpperCase()} Unit
                 </Text>
                 {assignedCourier.phone && (
-                  <Text style={styles.courierPhone}>{assignedCourier.phone}</Text>
+                  <Text style={styles.courierPhone}>
+                    {assignedCourier.phone}
+                  </Text>
                 )}
               </View>
-              <Ionicons name="chevron-forward" size={20} color={colors.border} />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={colors.border}
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -224,7 +237,12 @@ export default function LetterDetailScreen() {
           <Text style={styles.sectionTitle}>Timeline</Text>
           <View style={styles.timelineCard}>
             <View style={styles.timelineItem}>
-              <View style={[styles.timelineDot, { backgroundColor: colors.textSecondary }]} />
+              <View
+                style={[
+                  styles.timelineDot,
+                  { backgroundColor: colors.textSecondary },
+                ]}
+              />
               <View style={styles.timelineContent}>
                 <Text style={styles.timelineTitle}>Submitted</Text>
                 <Text style={styles.timelineDate}>
@@ -236,7 +254,9 @@ export default function LetterDetailScreen() {
             <View style={styles.timelineLine} />
 
             <View style={styles.timelineItem}>
-              <View style={[styles.timelineDot, { backgroundColor: colors.info }]} />
+              <View
+                style={[styles.timelineDot, { backgroundColor: colors.info }]}
+              />
               <View style={styles.timelineContent}>
                 <Text style={styles.timelineTitle}>Assigned</Text>
                 <Text style={styles.timelineDate}>
@@ -249,7 +269,12 @@ export default function LetterDetailScreen() {
               <>
                 <View style={styles.timelineLine} />
                 <View style={styles.timelineItem}>
-                  <View style={[styles.timelineDot, { backgroundColor: colors.warning }]} />
+                  <View
+                    style={[
+                      styles.timelineDot,
+                      { backgroundColor: colors.warning },
+                    ]}
+                  />
                   <View style={styles.timelineContent}>
                     <Text style={styles.timelineTitle}>Picked Up</Text>
                     <Text style={styles.timelineDate}>
@@ -316,7 +341,9 @@ export default function LetterDetailScreen() {
               {letter.pod.recipientPhone && (
                 <View style={styles.podRow}>
                   <Text style={styles.podLabel}>Phone</Text>
-                  <Text style={styles.podValue}>{letter.pod.recipientPhone}</Text>
+                  <Text style={styles.podValue}>
+                    {letter.pod.recipientPhone}
+                  </Text>
                 </View>
               )}
               <View style={styles.podRow}>

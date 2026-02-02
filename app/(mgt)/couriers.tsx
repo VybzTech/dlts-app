@@ -1,6 +1,6 @@
-import { useAdminStore } from "@/src/store/adminStore";
-import { useMgtStore } from "@/src/store/mgtStore";
-import { colors } from "@/src/theme/colors";
+import { useAdminStore } from "@/store/adminStore";
+import { useMgtStore } from "@/store/mgtStore";
+import { colors } from "@/src/styles/theme/colors";
 import { User } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { FlatList, StyleSheet, Text, View } from "react-native";
@@ -12,12 +12,14 @@ export default function ManagementCouriers() {
 
   const getCourierStats = (courierId: string) => {
     const courierDeliveries = deliveries.filter(
-      (d) => d.assignedCourierId === `COU-${courierId}`
+      (d) => d.assignedCourierId === `COU-${courierId}`,
     );
     return {
       total: courierDeliveries.length,
-      delivered: courierDeliveries.filter((d) => d.status === "delivered").length,
-      pending: courierDeliveries.filter((d) => d.status === "pending_approval").length,
+      delivered: courierDeliveries.filter((d) => d.status === "delivered")
+        .length,
+      pending: courierDeliveries.filter((d) => d.status === "pending_approval")
+        .length,
     };
   };
 
@@ -32,7 +34,9 @@ export default function ManagementCouriers() {
           </View>
           <View style={styles.courierInfo}>
             <Text style={styles.courierName}>{item.fullName}</Text>
-            <Text style={styles.courierUnit}>{item.unit.toUpperCase()} Unit</Text>
+            <Text style={styles.courierUnit}>
+              {item.unit.toUpperCase()} Unit
+            </Text>
             <Text style={styles.courierEmail}>{item.email}</Text>
           </View>
         </View>
@@ -77,7 +81,11 @@ export default function ManagementCouriers() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="people-outline" size={48} color={colors.textSecondary} />
+            <Ionicons
+              name="people-outline"
+              size={48}
+              color={colors.textSecondary}
+            />
             <Text style={styles.emptyText}>No couriers found</Text>
           </View>
         }

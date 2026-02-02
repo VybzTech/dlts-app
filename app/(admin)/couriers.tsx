@@ -1,10 +1,16 @@
-import { useAdminStore } from "@/src/store/adminStore";
-import { colors } from "@/src/theme/colors";
+import { useAdminStore } from "@/store/adminStore";
+import { colors } from "@/src/styles/theme/colors";
 import { User } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useMemo } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AdminCouriers() {
@@ -14,11 +20,17 @@ export default function AdminCouriers() {
 
   const getCourierStats = (courierId: string) => {
     const courierDeliveries = allDeliveries.filter(
-      (d) => d.assignedCourierId === `COU-${courierId}`
+      (d) => d.assignedCourierId === `COU-${courierId}`,
     );
-    const delivered = courierDeliveries.filter((d) => d.status === "delivered").length;
-    const returned = courierDeliveries.filter((d) => d.status === "returned").length;
-    const pending = courierDeliveries.filter((d) => d.status === "pending_approval").length;
+    const delivered = courierDeliveries.filter(
+      (d) => d.status === "completed",
+    ).length;
+    const returned = courierDeliveries.filter(
+      (d) => d.status === "returned",
+    ).length;
+    const pending = courierDeliveries.filter(
+      (d) => d.status === "pending_approval",
+    ).length;
     const completed = delivered + returned;
     const rate = completed > 0 ? (delivered / completed) * 100 : 0;
 
@@ -49,7 +61,9 @@ export default function AdminCouriers() {
           </View>
           <View style={styles.courierInfo}>
             <Text style={styles.courierName}>{item.fullName}</Text>
-            <Text style={styles.courierUnit}>{item.unit.toUpperCase()} Unit</Text>
+            <Text style={styles.courierUnit}>
+              {item.unit.toUpperCase()} Unit
+            </Text>
             <Text style={styles.courierEmail}>{item.email}</Text>
           </View>
           <View style={styles.rateContainer}>
@@ -99,7 +113,11 @@ export default function AdminCouriers() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="people-outline" size={48} color={colors.textSecondary} />
+            <Ionicons
+              name="people-outline"
+              size={48}
+              color={colors.textSecondary}
+            />
             <Text style={styles.emptyText}>No couriers found</Text>
           </View>
         }

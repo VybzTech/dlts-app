@@ -57,7 +57,7 @@
 // }
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { colors } from "@/src/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 
 export default function CourierLayout() {
   return (
