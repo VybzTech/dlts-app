@@ -17,7 +17,7 @@ const getBaseUrl = () => {
 
 const BASE_URL = getBaseUrl();
 
-const axiosInstance = axios.create({
+const   axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: {
