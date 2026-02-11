@@ -9,6 +9,8 @@ import { KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // import { useAuthStore } from "../../store/authStore";
 import { User } from "@/src/types";
+import { useAuthStore } from "@/store/authStore";
+import { useLetterStore } from "@/store/letterStore";
 
 interface FormErrors {
   email?: string;
@@ -24,7 +26,8 @@ export default function AuthLoginScreen() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [user, setUser] = useState<User>();
   const router = useRouter();
-  // const { login } = useAuthStore();
+  const { login } = useAuthStore();
+  const { fetchLetters } = useLetterStore();
 
   const validateForm = (): boolean => {
     console.log(
@@ -74,80 +77,73 @@ export default function AuthLoginScreen() {
     Admin: "/(admin)",
     ODU: "/(mgt)",
   };
-  // const handleLogin = async () => {
-  //   console.log(
-  //     `Logging in via URL: `,
-  //     api.login.toString,
-  //     roleRoutes[user?.role as keyof typeof roleRoutes],
-  //   );
-  //   // Clear general error on new attempt
-  //   setErrors((prev) => ({ ...prev, general: undefined }));
-
-  //   if (!validateForm()) {
-  //     return;
-  //   }
-
-  //   setIsLoading(true);
-  //   try {
-  //     const response = await api.login(email.trim(), password);
-  //     // login(response.user, response.token);
-  //     console.log(response.user);
-  //     // roleRoutes[user?.role as keyof typeof roleRoutes];
-  //     setUser(response?.user);
-  //     router.replace(roleRoutes[user.role as typeof roleRoutes]);
-  //   } catch (error: any) {
-  //     setErrors({ general: error.message || "Invalid credentials" });
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleLogin = async () => {
-  setErrors((prev) => ({ ...prev, general: undefined }));
+    setErrors((prev) => ({ ...prev, general: undefined }));
 
-  if (!validateForm()) {
-    return;
-  }
-
-  setIsLoading(true);
-  try {
-    const response = await api.login(email.trim(), password);
-    console.log(response.user);
-
-    const route = roleRoutes[response.user.role];
-
-    if (!route) {
-      setErrors({ general: `Unknown role: ${response.user.role}` });
+    if (!validateForm()) {
       return;
     }
 
-    setUser(response.user);
-    router.replace(route as any);
-    console.log(`Logging in via URL: `, route);
-  } catch (error: any) {
-    // Log the full error object
-    console.log("Full error object:", error);
-    
-    // Log specific Axios error properties
-    if (error.response) {
-      // Server responded with error status
-      console.log("Error status:", error.response.status);
-      console.log("Error data:", error.response.data);
-      console.log("Error headers:", error.response.headers);
-      setErrors({ general: error.response.data?.message || "Server error" });
-    } else if (error.request) {
-      // Request made but no response
-      console.log("No response received:", error.request);
-      setErrors({ general: "No response from server" });
-    } else {
-      // Error in request setup
-      console.log("Error message:", error.message);
-      setErrors({ general: error.message || "Invalid credentials" });
+    setIsLoading(true);
+    try {
+      const response = await api.login(email.trim(), password);
+      console.log(response.user);
+
+      const route = roleRoutes[response.user.role];
+
+      if (!route) {
+        setErrors({ general: `Unknown role: ${response.user.role}` });
+        return;
+      }
+
+      setUser(response.user);
+
+      // Store auth data
+      await login(response.user, response.token);
+
+      // If courier, fetch their letters
+      if (
+        response.user.role === "courier" 
+        // response.user.role === "Courier"
+      ) {
+        try {
+          await fetchLetters(1, "all");
+        } catch (letterError) {
+          console.log(
+            "Note: Could not fetch letters, but user will be logged in",
+            letterError,
+          );
+          // Don't fail login if letters fail to load
+        }
+      }
+
+      router.replace(route as any);
+      console.log(`Logging in via URL: `, route);
+    } catch (error: any) {
+      // Log the full error object
+      console.log("Full error object:", error);
+
+      // Log specific Axios error properties
+      if (error.response) {
+        // Server responded with error status
+        console.log("Error status:", error.response.status);
+        console.log("Error data:", error.response.data);
+        console.log("Error headers:", error.response.headers);
+        setErrors({ general: error.response.data?.message || "Server error" });
+      } else if (error.request) {
+        // Request made but no response
+        console.log("No response received:", error.request);
+        setErrors({ general: "No response from server" });
+      } else {
+        // Error in request setup
+        console.log("Error message:", error.message);
+        setErrors({ general: error.message || "Invalid credentials" });
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <SafeAreaView style={loginStyles.container}>

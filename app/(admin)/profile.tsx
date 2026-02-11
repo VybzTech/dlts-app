@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import AdminDashboard from ".";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // app/(admin)/profile.tsx - Admin Profile
-export function AdminProfile() {
+export default function AdminProfile() {
   const adminUser = {
     name: "Admin User",
     email: "admin@lirs.net",
@@ -393,8 +392,6 @@ const styles = StyleSheet.create({
     color: colors.danger,
   },
 });
-
-export default AdminDashboard;
 
 // import ProfileScreen  from "@/src/screens/auth/ProfileScreen";
 

@@ -1,9 +1,16 @@
+import { usePermission } from "@/src/hooks/usePermission";
 import { Icon } from "@/src/hooks/useIcons";
 import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 export default function MgtLayout() {
+  // Protect this entire mgt route - only mgt users can access
+  usePermission({
+    requiredRoles: ["mgt"],
+    requireAuth: true,
+  });
+
   return (
     <Tabs
       screenOptions={{

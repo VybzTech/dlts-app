@@ -1,198 +1,356 @@
-import { EmptyState } from "@/src/components/common/EmptyState";
-import { LoadingSpinner } from "@/src/components/common/LoadingSpinner";
-import { StatsCard } from "@/src/components/courier/StatsCard";
-import { DeliveryCard } from "@/src/components/delivery/DeliveryCard";
-import { useAuthStore } from "@/store";
-import { useCourierStore } from "@/store/courierStore";
-import { deliveryStyles } from "@/src/styles/delivery";
-import { colors } from "@/src/styles/theme/colors";
-import { FilterType } from "@/src/types/delivery.types";
-import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, RefreshControl, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  Alert,
+  FlatList,
+  RefreshControl,
+  Text,
+  View,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { useLetterStore } from "@/store/letterStore";
+import { useAuthStore } from "@/store";
+import { LetterCard } from "@/src/components/letter/LetterCard";
+import {
+  DeliveryModal,
+  DeclineModal,
+  InTransitModal,
+} from "@/src/components/letter/ActionModals";
+import { LoadingSpinner } from "@/src/components/common/LoadingSpinner";
+import { EmptyState } from "@/src/components/common/EmptyState";
+import { colors } from "@/src/styles/theme/colors";
+import { LetterStatus } from "@/src/types/letter.types";
 
-// Main Dashboard Screen
 export default function CourierDashboard() {
-  const router = useRouter();
   const { user } = useAuthStore();
-  const { assignedDeliveries, setAssignedDeliveries, getStats } =
-    useCourierStore();
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<FilterType>("all");
+  const {
+    filteredLetters,
+    isLoading,
+    error,
+    fetchLetters,
+    setFilter,
+    currentFilter,
+    markAsInTransit,
+    markAsDelivered,
+    markAsUndelivered,
+    getStats,
+  } = useLetterStore();
 
-  // Load deliveries
+  const [refreshing, setRefreshing] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [selectedLetterId, setSelectedLetterId] = useState<string | null>(null);
+
+  // Modal states
+  const [showInTransitModal, setShowInTransitModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+
+  // Load letters on mount
   useEffect(() => {
-    loadDeliveries();
+    loadLetters();
   }, []);
 
-  const loadDeliveries = async () => {
-    setIsLoading(true);
+  const loadLetters = async () => {
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      // const mockData = generateMockDeliveries();
-      // setAssignedDeliveries(mockData);
-      setAssignedDeliveries(assignedDeliveries);
+      await fetchLetters(1, "all");
     } catch (error) {
-      Alert.alert("Error", "Failed to load deliveries");
-    } finally {
-      setIsLoading(false);
+      Alert.alert("Error", "Failed to load letters");
     }
   };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadDeliveries();
-    setRefreshing(false);
-  }, []);
+    try {
+      await fetchLetters(1, currentFilter);
+    } catch (error) {
+      Alert.alert("Error", "Failed to refresh letters");
+    } finally {
+      setRefreshing(false);
+    }
+  }, [currentFilter, fetchLetters]);
 
-  const handleDeliveryPress = (id: string) => {
-    // router.push(`@/(courier)/${id}`);
-    // router.push(`@/(courier)/${id}`);
+  const handleFilterChange = (filter: LetterStatus | "all") => {
+    setFilter(filter);
   };
 
-  // Filter deliveries
-  const getFilteredDeliveries = () => {
-    switch (filter) {
-      case "pending":
-        return assignedDeliveries.filter(
-          (d) => d.status === "pending_approval",
-        );
-      case "completed":
-        return assignedDeliveries.filter((d) => d.status === "completed");
-      case "returned":
-        return assignedDeliveries.filter((d) => d.status === "returned");
-      default:
-        return assignedDeliveries;
+  // Action handlers
+  const handleMarkInTransit = (letterId: string) => {
+    setSelectedLetterId(letterId);
+    setShowInTransitModal(true);
+  };
+
+  const handleMarkDelivered = (letterId: string) => {
+    setSelectedLetterId(letterId);
+    setShowDeliveryModal(true);
+  };
+
+  const handleMarkUndelivered = (letterId: string) => {
+    setSelectedLetterId(letterId);
+    setShowDeclineModal(true);
+  };
+
+  // Modal submit handlers
+  const handleInTransitSubmit = async () => {
+    if (!selectedLetterId) return;
+    setActionLoading(true);
+    try {
+      await markAsInTransit(selectedLetterId);
+      setShowInTransitModal(false);
+      Alert.alert("Success", "Letter marked as in transit");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to update letter");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeliverySubmit = async (data: any) => {
+    if (!selectedLetterId) return;
+    setActionLoading(true);
+    try {
+      await markAsDelivered(selectedLetterId, data);
+      setShowDeliveryModal(false);
+      Alert.alert("Success", "Letter marked as delivered");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to update letter");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeclineSubmit = async (data: any) => {
+    if (!selectedLetterId) return;
+    setActionLoading(true);
+    try {
+      await markAsUndelivered(selectedLetterId, data.reason);
+      setShowDeclineModal(false);
+      Alert.alert("Success", "Letter marked as undelivered");
+    } catch (error: any) {
+      Alert.alert("Error", error.message || "Failed to update letter");
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const stats = getStats();
-  const filteredDeliveries = getFilteredDeliveries();
 
-  if (isLoading && assignedDeliveries.length === 0) {
-    return <LoadingSpinner fullScreen message="Loading deliveries..." />;
+  if (isLoading && filteredLetters.length === 0) {
+    return <LoadingSpinner fullScreen message="Loading letters..." />;
   }
 
-  const statsCards = [
+  const statFilters = [
+    { label: "All", value: "all" as const, count: stats.total },
+    { label: "Pending", value: "Allocated" as const, count: stats.pending },
     {
-      label: "All",
-      value: stats.assigned + stats.completed + stats.returned,
-      icon: "mail",
-      filterKey: "all" as const,
+      label: "In Transit",
+      value: "InTransit" as const,
+      count: stats.inTransit,
     },
+    { label: "Delivered", value: "Delivered" as const, count: stats.delivered },
     {
-      label: "Pending",
-      value: stats.assigned,
-      icon: "time-outline",
-      filterKey: "pending" as const,
-    },
-    {
-      label: "Completed",
-      value: stats.completed,
-      icon: "checkmark-circle",
-      filterKey: "completed" as const,
-    },
-    {
-      label: "Returned",
-      value: stats.returned,
-      // icon: "close-circle",
-      iconLibrary: "feather",
-      // iconLibrary: "fontawesome6",
-      icon: "rotate-ccw",
-      // icon: "rotate-left",
-      filterKey: "returned" as const,
+      label: "Undelivered",
+      value: "Undelivered" as const,
+      count: stats.undelivered,
     },
   ];
 
   return (
-    <SafeAreaView style={deliveryStyles.container}>
-      <Text style={deliveryStyles.header}>My Letters</Text>
-      {/* Stats Summary */}
-      <View style={deliveryStyles.statsContainer}>
-        {statsCards.map((card) => (
-          <StatsCard
-            key={card.filterKey}
-            label={card.label}
-            value={card.value}
-            icon={card.icon}
-            iconLibrary={card.iconLibrary}
-            filterKey={card.filterKey}
-            activeFilter={filter}
-            onPress={setFilter}
-          />
-        ))}
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.greeting}>Welcome back, {user?.name}!</Text>
+          <Text style={styles.subGreeting}>Manage your letter deliveries</Text>
+        </View>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {user?.name?.[0]?.toUpperCase()}
+          </Text>
+        </View>
       </View>
-      {/* Filter Tabs */}
-      {/* <View style={deliveryStyles.filterContainer}>
-        {(["all", "pending", "completed", "returned"] as const).map((f) => (
-          <Pressable
-            key={f}
+
+      {/* Stats Cards */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.statsScroll}
+        contentContainerStyle={styles.statsContainer}
+      >
+        {statFilters.map((stat) => (
+          <TouchableOpacity
+            key={stat.value}
             style={[
-              deliveryStyles.filterTab,
-              filter === f && deliveryStyles.filterTabActive,
+              styles.statCard,
+              currentFilter === stat.value && styles.statCardActive,
             ]}
-            onPress={() => setFilter(f)}
+            onPress={() => handleFilterChange(stat.value)}
           >
             <Text
               style={[
-                deliveryStyles.filterTabText,
-                filter === f && deliveryStyles.filterTabTextActive,
+                styles.statLabel,
+                currentFilter === stat.value && styles.statLabelActive,
               ]}
             >
-              {f === "all"
-                ? "All"
-                : f === "pending"
-                  ? "Pending"
-                  : f === "completed"
-                    ? "Completed"
-                    : "Returned"}
+              {stat.label}
             </Text>
-          </Pressable>
+            <Text
+              style={[
+                styles.statValue,
+                currentFilter === stat.value && styles.statValueActive,
+              ]}
+            >
+              {stat.count}
+            </Text>
+          </TouchableOpacity>
         ))}
-      </View> */}
+      </ScrollView>
 
-      {/* Deliveries List */}
-      <FlatList
-        data={filteredDeliveries}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <DeliveryCard
-            id={item.id}
-            delivery={item}
-            // scheduleId={item.scheduleId}
-            // companyName={item.companyName}
-            // destination={item.destination}
-            // lga={item.lga}
-            // priority={item.priority}
-            // status={item.status}
-            // onPress={() => handleDeliveryPress(item.id)}
-          />
-        )}
-        contentContainerStyle={deliveryStyles.listContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-        ListEmptyComponent={
-          <EmptyState
-            icon="mail"
-            title="No Deliveries"
-            message={
-              filter === "all"
-                ? "You have no assigned deliveries at the moment"
-                : `No ${filter.replace("_", " ")} deliveries`
-            }
-          />
-        }
-        showsVerticalScrollIndicator={false}
+      {/* Letters List */}
+      {filteredLetters.length === 0 ? (
+        <EmptyState
+          icon="📭"
+          title="No Letters"
+          message={
+            currentFilter === "all"
+              ? "You don't have any assigned letters yet"
+              : `No ${currentFilter.toLowerCase()} letters`
+          }
+        />
+      ) : (
+        <FlatList
+          data={filteredLetters}
+          renderItem={({ item }) => (
+            <LetterCard
+              letter={item}
+              isLoading={actionLoading}
+              onMarkInTransit={() => handleMarkInTransit(item.id)}
+              onMarkDelivered={() => handleMarkDelivered(item.id)}
+              onMarkUndelivered={() => handleMarkUndelivered(item.id)}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <EmptyState
+              icon="📭"
+              title="No Letters"
+              message="Pull to refresh"
+            />
+          }
+        />
+      )}
+
+      {/* Modals */}
+      <InTransitModal
+        visible={showInTransitModal}
+        onClose={() => setShowInTransitModal(false)}
+        onSubmit={handleInTransitSubmit}
+        isLoading={actionLoading}
+      />
+
+      <DeliveryModal
+        visible={showDeliveryModal}
+        onClose={() => setShowDeliveryModal(false)}
+        onSubmit={handleDeliverySubmit}
+        isLoading={actionLoading}
+      />
+
+      <DeclineModal
+        visible={showDeclineModal}
+        onClose={() => setShowDeclineModal(false)}
+        onSubmit={handleDeclineSubmit}
+        isLoading={actionLoading}
       />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  greeting: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  subGreeting: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  statsScroll: {
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  statsContainer: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  statCard: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
+    minWidth: 100,
+    alignItems: "center",
+  },
+  statCardActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: "500",
+  },
+  statLabelActive: {
+    color: "#fff",
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.text,
+    marginTop: 4,
+  },
+  statValueActive: {
+    color: "#fff",
+  },
+  listContent: {
+    paddingVertical: 12,
+  },
+});

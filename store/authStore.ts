@@ -1,7 +1,6 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 import type { User } from "../src/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface AuthState {
   user: User | null;
@@ -11,71 +10,51 @@ interface AuthState {
   login: (user: User, token?: string) => Promise<void>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
-  // Check if store has been hydrated from AsyncStorage
+  // Hydration is no longer strictly needed without persistence,
+  // but we keep it to avoid breaking components that check it
   isHydrated: boolean;
   setIsHydrated: (hydrated: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      user: null,
-      token: null,
-      isAuthenticated: false,
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isLoading: false,
+  isHydrated: true, // Set to true by default since we aren't hydrating from storage
+
+  login: async (user: User, token?: string) => {
+    set({
+      user,
+      token: token || null,
+      isAuthenticated: true,
       isLoading: false,
-      isHydrated: false,
-      
-      login: async (user: User, token?: string) => {
-        set({ 
-          user, 
-          token: token || null, 
-          isAuthenticated: true, 
-          isLoading: false 
-        });
-      },
-      
-      logout: async () => {
-        set({ isLoading: true });
-        try {
-          // Clear all auth-related data
-          set({ 
-            user: null, 
-            isAuthenticated: false,
-            isLoading: false 
-          });
-          
-          // Also clear any persisted auth data
-          await AsyncStorage.removeItem("dlts-auth-storage");
-        } catch (error) {
-          console.error("Logout error:", error);
-          // Still update state even if AsyncStorage fails
-          set({ 
-            user: null, 
-            isAuthenticated: false,
-            isLoading: false 
-          });
-          throw error;
-        }
-      },
-      
-      setLoading: (loading: boolean) => set({ isLoading: loading }),
-      
-      setIsHydrated: (hydrated: boolean) => set({ isHydrated: hydrated }),
-    }),
-    {
-      name: "dlts-auth-storage",
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
-      onRehydrateStorage: () => (state) => {
-        // Called when the store is hydrated from storage
-        if (state) {
-          state.setIsHydrated(true);
-        }
-      },
+    });
+  },
+
+  logout: async () => {
+    set({ isLoading: true });
+    try {
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        token: null,
+      });
+      // Optionally clear history if needed
+      await AsyncStorage.removeItem("dlts-auth-storage");
+    } catch (error) {
+      console.error("Logout error:", error);
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        token: null,
+      });
     }
-  )
-);
+  },
+
+  setLoading: (loading: boolean) => set({ isLoading: loading }),
+
+  setIsHydrated: (hydrated: boolean) => set({ isHydrated: hydrated }),
+}));
