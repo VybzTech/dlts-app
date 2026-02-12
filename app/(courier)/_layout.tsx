@@ -35,6 +35,12 @@ export default function CourierLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="letter/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

@@ -3,48 +3,73 @@ import { colors } from "@/src/styles/theme/colors";
 import { User } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  StatusBar,
+  RefreshControl,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLetterStore } from "@/store/letterStore";
 
 export default function AdminCouriers() {
   const router = useRouter();
-  const couriers = useAdminStore((s) => s.couriers);
-  const allDeliveries = useAdminStore((s) => s.allDeliveries);
+  const { letters, fetchLetters } = useLetterStore();
+  const {
+    couriers,
+    fetchCouriers,
+    isLoading: couriersLoading,
+  } = useAdminStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    await Promise.all([fetchLetters(), fetchCouriers()]);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
 
   const getCourierStats = (courierId: string) => {
-    const courierDeliveries = allDeliveries.filter(
-      (d) => d.assignedCourierId === `COU-${courierId}`,
+    const courierLetters = letters.filter(
+      (l) => l.courierId === courierId.toString(),
     );
-    const delivered = courierDeliveries.filter(
-      (d) => d.status === "completed",
+    const delivered = courierLetters.filter(
+      (l) => l.status === "Delivered",
     ).length;
-    const returned = courierDeliveries.filter(
-      (d) => d.status === "returned",
+    const pending = courierLetters.filter((l) =>
+      ["Assigned", "In_Transit"].includes(l.status),
     ).length;
-    const pending = courierDeliveries.filter(
-      (d) => d.status === "pending_approval",
-    ).length;
-    const completed = delivered + returned;
-    const rate = completed > 0 ? (delivered / completed) * 100 : 0;
 
     return {
-      total: courierDeliveries.length,
+      total: courierLetters.length,
       delivered,
       pending,
-      rate,
+      rate:
+        courierLetters.length > 0
+          ? (delivered / courierLetters.length) * 100
+          : 0,
     };
   };
 
-  const handleCourierPress = (courier: User) => {
-    router.push(`/(admin)/courier/${courier.id}` as any);
-  };
+  const filteredCouriers = couriers.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone && c.phone.includes(search)),
+  );
 
   const renderCourierCard = ({ item }: { item: User }) => {
     const stats = getCourierStats(item.id);
@@ -52,188 +77,254 @@ export default function AdminCouriers() {
     return (
       <TouchableOpacity
         style={styles.courierCard}
-        onPress={() => handleCourierPress(item)}
-        activeOpacity={0.7}
+        onPress={() => router.push(`/(admin)/courier/${item.id}`)}
+        activeOpacity={0.8}
       >
-        <View style={styles.cardHeader}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={24} color={colors.primary} />
+        <View style={styles.cardTop}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
           </View>
-          <View style={styles.courierInfo}>
-            <Text style={styles.courierName}>{item.fullName}</Text>
-            <Text style={styles.courierUnit}>
-              {item.unit.toUpperCase()} Unit
-            </Text>
-            <Text style={styles.courierEmail}>{item.email}</Text>
+          <View style={styles.info}>
+            <Text style={styles.name}>{item.name}</Text>
+            <View style={styles.unitRow}>
+              <Ionicons name="business" size={12} color={colors.primary} />
+              <Text style={styles.unit}>{item.unit} Unit</Text>
+            </View>
           </View>
-          <View style={styles.rateContainer}>
-            <Text style={styles.rateValue}>{stats.rate.toFixed(0)}%</Text>
-            <Text style={styles.rateLabel}>Rate</Text>
+          <View style={styles.rateChip}>
+            <Text style={styles.rateText}>{stats.rate.toFixed(0)}%</Text>
           </View>
         </View>
 
         <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.primary }]}>
-              {stats.total}
-            </Text>
+          <View style={styles.stat}>
+            <Text style={styles.statVal}>{stats.total}</Text>
             <Text style={styles.statLabel}>Assigned</Text>
           </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.warning }]}>
+          <View style={styles.divider} />
+          <View style={styles.stat}>
+            <Text style={[styles.statVal, { color: colors.warning }]}>
               {stats.pending}
             </Text>
-            <Text style={styles.statLabel}>Pending</Text>
+            <Text style={styles.statLabel}>Active</Text>
           </View>
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: colors.success }]}>
+          <View style={styles.divider} />
+          <View style={styles.stat}>
+            <Text style={[styles.statVal, { color: colors.success }]}>
               {stats.delivered}
             </Text>
-            <Text style={styles.statLabel}>Delivered</Text>
+            <Text style={styles.statLabel}>Success</Text>
           </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.border} />
+          <View style={styles.chevron}>
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={colors.textLight}
+            />
+          </View>
         </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Courier Riders</Text>
-        <Text style={styles.headerSubtitle}>
-          {couriers.length} active couriers
-        </Text>
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+      <SafeAreaView edges={["top"]} style={styles.safe}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Courier Team</Text>
+          <Text style={styles.subtitle}>
+            {couriers.length} registered personnel
+          </Text>
+        </View>
 
-      <FlatList
-        data={couriers}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCourierCard}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons
-              name="people-outline"
-              size={48}
-              color={colors.textSecondary}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color={colors.textLight} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChangeText={setSearch}
+            placeholderTextColor={colors.textLight}
+          />
+        </View>
+
+        <FlatList
+          data={filteredCouriers}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCourierCard}
+          contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
             />
-            <Text style={styles.emptyText}>No couriers found</Text>
-          </View>
-        }
-      />
-    </SafeAreaView>
+          }
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Ionicons name="people-outline" size={64} color={colors.border} />
+              <Text style={styles.emptyText}>
+                No couriers matching your search
+              </Text>
+            </View>
+          }
+        />
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#F8FAFC",
+  },
+  safe: {
+    flex: 1,
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: 24,
+    paddingTop: 10,
     paddingBottom: 16,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
     color: colors.text,
   },
-  headerSubtitle: {
+  subtitle: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
   },
-  listContent: {
+  searchContainer: {
+    marginHorizontal: 24,
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
     paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  courierCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 16,
+    height: 52,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
   },
-  cardHeader: {
-    flexDirection: "row",
-    marginBottom: 16,
-  },
-  avatarContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.primary + "15",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  courierInfo: {
+  searchInput: {
     flex: 1,
-  },
-  courierName: {
-    fontSize: 16,
-    fontWeight: "600",
+    marginLeft: 12,
+    fontSize: 15,
     color: colors.text,
   },
-  courierUnit: {
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: "500",
-    marginTop: 2,
+  list: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
-  courierEmail: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
+  courierCard: {
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  rateContainer: {
+  cardTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    backgroundColor: colors.primary + "15",
     alignItems: "center",
     justifyContent: "center",
-    paddingLeft: 12,
   },
-  rateValue: {
-    fontSize: 20,
-    fontWeight: "700",
+  avatarText: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: colors.primary,
+  },
+  info: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  name: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  unitRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 2,
+  },
+  unit: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.primary,
+  },
+  rateChip: {
+    backgroundColor: "#ECFDF5",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#D1FAE5",
+  },
+  rateText: {
+    fontSize: 14,
+    fontWeight: "800",
     color: colors.success,
-  },
-  rateLabel: {
-    fontSize: 10,
-    color: colors.textSecondary,
   },
   statsRow: {
     flexDirection: "row",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 12,
+    borderTopColor: "#F1F5F9",
+    paddingTop: 16,
   },
-  statItem: {
+  stat: {
     flex: 1,
     alignItems: "center",
   },
-  statValue: {
-    fontSize: 18,
-    fontWeight: "700",
+  statVal: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.text,
   },
   statLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: colors.textSecondary,
+    fontWeight: "700",
     marginTop: 2,
+    textTransform: "uppercase",
   },
-  emptyContainer: {
+  divider: {
+    width: 1,
+    height: 24,
+    backgroundColor: "#F1F5F9",
+  },
+  chevron: {
+    paddingLeft: 10,
+  },
+  empty: {
     alignItems: "center",
     paddingTop: 60,
   },
   emptyText: {
     fontSize: 16,
     color: colors.textSecondary,
-    marginTop: 12,
+    marginTop: 20,
   },
 });

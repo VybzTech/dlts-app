@@ -1,671 +1,590 @@
-import { useAdminStore } from "@/store/adminStore";
-import { colors, statusLabels } from "@/src/styles/theme/colors";
+import { colors } from "@/src/styles/theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  StatusBar,
+  Image,
+  ActivityIndicator,
+  Alert,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useLetterStore } from "@/store/letterStore";
+import { useAdminStore } from "@/store/adminStore";
+import { LinearGradient } from "expo-linear-gradient";
+import { getFullImageUrl } from "@/src/api/config/axios.config";
 
-export default function LetterDetailScreen() {
+export default function AdminLetterDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const allDeliveries = useAdminStore((s) => s.allDeliveries);
-  const couriers = useAdminStore((s) => s.couriers);
+  const { letters, fetchLetters, approveLetter, rejectLetter } =
+    useLetterStore();
+  const { couriers } = useAdminStore();
 
-  const letter = useMemo(
-    () => allDeliveries.find((d) => d.id === id),
-    [allDeliveries, id],
-  );
+  const [isActionLoading, setIsActionLoading] = useState(false);
+
+  const letter = useMemo(() => letters.find((l) => l.id === id), [letters, id]);
 
   const assignedCourier = useMemo(() => {
-    if (!letter?.assignedCourierId) return null;
-    const courierId = letter.assignedCourierId.replace("COU-", "");
-    return couriers.find((c) => c.id === courierId);
+    if (!letter?.courierId) return null;
+    return couriers.find((c) => c.id === letter.courierId);
   }, [letter, couriers]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  useEffect(() => {
+    if (!letter) fetchLetters();
+  }, [id]);
 
-  const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM d, yyyy 'at' h:mm a");
+  const handleApprove = async () => {
+    Alert.alert(
+      "Approve Letter",
+      "Are you sure you want to approve this letter?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Approve",
+          onPress: async () => {
+            setIsActionLoading(true);
+            try {
+              await approveLetter(id);
+              Alert.alert("Success", "Letter has been approved");
+            } catch (e) {
+              Alert.alert("Error", "Failed to approve letter");
+            } finally {
+              setIsActionLoading(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   if (!letter) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Letter not found</Text>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>Go Back</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Fetching letter details...</Text>
+      </View>
     );
   }
 
-  const statusColor =
-    letter.status === "delivered"
-      ? colors.success
-      : letter.status === "returned"
-        ? colors.danger
-        : colors.warning;
-
-  const priorityColor =
-    letter.priority === "URGENT" ? colors.danger : colors.textSecondary;
+  const podUrl = getFullImageUrl(letter.podImagePath);
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backIcon}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Letter Details</Text>
-          <View style={{ width: 40 }} />
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#1E3A8A" />
 
-        {/* Main Info Card */}
-        <View style={styles.mainCard}>
-          <View style={styles.trackingRow}>
-            <Text style={styles.trackingId}>{letter.trackingId}</Text>
-            <View
-              style={[styles.statusBadge, { backgroundColor: statusColor }]}
+      <LinearGradient colors={["#1E3A8A", "#1E40AF"]} style={styles.header}>
+        <SafeAreaView edges={["top"]}>
+          <View style={styles.navBar}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backBtn}
             >
-              <Text style={styles.statusText}>
-                {statusLabels[letter.status] || letter.status}
-              </Text>
-            </View>
+              <Ionicons name="arrow-back" size={24} color={colors.white} />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Letter Details</Text>
+            <View style={{ width: 40 }} />
           </View>
+        </SafeAreaView>
+      </LinearGradient>
 
-          <Text style={styles.letterTitle}>{letter.title}</Text>
-
-          <View style={styles.priorityRow}>
-            <View
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Status & Priority Badge */}
+        <View style={styles.badgeRow}>
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor:
+                  letter.status === "Delivered"
+                    ? colors.success + "15"
+                    : letter.status === "Undelivered" ||
+                        letter.status === "Rejected"
+                      ? colors.danger + "15"
+                      : letter.status === "In_Transit"
+                        ? colors.warning + "15"
+                        : colors.primary + "15",
+              },
+            ]}
+          >
+            <Text
               style={[
-                styles.priorityBadge,
-                { backgroundColor: priorityColor + "15" },
+                styles.badgeText,
+                {
+                  color:
+                    letter.status === "Delivered"
+                      ? colors.success
+                      : letter.status === "Undelivered" ||
+                          letter.status === "Rejected"
+                        ? colors.danger
+                        : letter.status === "In_Transit"
+                          ? colors.warning
+                          : colors.primary,
+                },
               ]}
             >
-              <Ionicons
-                name={letter.priority === "URGENT" ? "alert-circle" : "flag"}
-                size={14}
-                color={priorityColor}
-              />
-              <Text style={[styles.priorityText, { color: priorityColor }]}>
-                {letter.priority}
-              </Text>
-            </View>
-            <Text style={styles.scheduleId}>{letter.scheduleId}</Text>
+              {letter.status.replace("_", " ")}
+            </Text>
           </View>
-        </View>
-
-        {/* Recipient Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recipient Information</Text>
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons name="business" size={18} color={colors.primary} />
-              </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Company</Text>
-                <Text style={styles.infoValue}>{letter.companyName}</Text>
-              </View>
-            </View>
-
-            {letter.contactPerson && (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Ionicons name="person" size={18} color={colors.primary} />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Contact Person</Text>
-                  <Text style={styles.infoValue}>{letter.contactPerson}</Text>
-                </View>
-              </View>
-            )}
-
-            {letter.contactPhone && (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIcon}>
-                  <Ionicons name="call" size={18} color={colors.primary} />
-                </View>
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Phone</Text>
-                  <Text style={styles.infoValue}>{letter.contactPhone}</Text>
-                </View>
-              </View>
-            )}
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons name="location" size={18} color={colors.primary} />
-              </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Address</Text>
-                <Text style={styles.infoValue}>{letter.destination}</Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
-                <Ionicons name="map" size={18} color={colors.primary} />
-              </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>LGA</Text>
-                <Text style={styles.infoValue}>{letter.lga}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Liability Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Liability Details</Text>
-          <View style={styles.liabilityCard}>
-            <View style={styles.liabilityMain}>
-              <Text style={styles.liabilityLabel}>Liability Amount</Text>
-              <Text style={styles.liabilityAmount}>
-                {formatCurrency(letter.liabilityAmount)}
-              </Text>
-            </View>
-            <View style={styles.liabilityYear}>
-              <Text style={styles.yearLabel}>Liability Year</Text>
-              <Text style={styles.yearValue}>{letter.liabilityYear}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Assigned Courier */}
-        {assignedCourier && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Assigned Courier</Text>
-            <TouchableOpacity
-              style={styles.courierCard}
-              onPress={() =>
-                router.push(`/(admin)/courier/${assignedCourier.id}` as any)
-              }
-              activeOpacity={0.7}
+          <View
+            style={[
+              styles.badge,
+              {
+                backgroundColor:
+                  letter.priority === "HIGH"
+                    ? colors.danger + "15"
+                    : colors.primary + "15",
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.badgeText,
+                {
+                  color:
+                    letter.priority === "HIGH" ? colors.danger : colors.primary,
+                },
+              ]}
             >
+              {letter.priority} Priority
+            </Text>
+          </View>
+        </View>
+
+        {/* Info Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.infoSection}>
+            <Text style={styles.sectionLabel}>SENDER INFORMATION</Text>
+            <View style={styles.infoRow}>
+              <Ionicons
+                name="business-outline"
+                size={18}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.infoValue}>
+                {letter.senderDirectorate?.name || "N/A"}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons
+                name="person-outline"
+                size={18}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.infoValue}>
+                {letter.createdBy?.name || "Unknown Sender"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.infoSection}>
+            <Text style={styles.sectionLabel}>RECIPIENT INFORMATION</Text>
+            <View style={styles.infoRow}>
+              <Ionicons
+                name="location-outline"
+                size={18}
+                color={colors.textSecondary}
+              />
+              <Text style={styles.infoValue}>{letter.recipientName}</Text>
+            </View>
+            <Text style={styles.addressText}>{letter.recipientAddress}</Text>
+            <Text style={styles.lgaText}>{letter.lgaAddress} LGA</Text>
+          </View>
+        </View>
+
+        {/* Assignment Card */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Assignee Details</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.assignmentCard}
+          onPress={() =>
+            assignedCourier &&
+            router.push(`/(admin)/courier/${assignedCourier.id}`)
+          }
+        >
+          {assignedCourier ? (
+            <>
               <View style={styles.courierAvatar}>
-                <Ionicons name="person" size={24} color={colors.primary} />
+                <Text style={styles.avatarText}>
+                  {assignedCourier.name.charAt(0)}
+                </Text>
               </View>
               <View style={styles.courierInfo}>
-                <Text style={styles.courierName}>
-                  {assignedCourier.fullName}
-                </Text>
-                <Text style={styles.courierDetail}>
-                  {assignedCourier.staffId} |{" "}
-                  {assignedCourier.unit.toUpperCase()} Unit
-                </Text>
-                {assignedCourier.phone && (
-                  <Text style={styles.courierPhone}>
-                    {assignedCourier.phone}
-                  </Text>
-                )}
+                <Text style={styles.courierName}>{assignedCourier.name}</Text>
+                <Text style={styles.courierLabel}>Assigned Courier Rider</Text>
               </View>
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={colors.border}
+                color={colors.textLight}
               />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Timeline */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Timeline</Text>
-          <View style={styles.timelineCard}>
-            <View style={styles.timelineItem}>
-              <View
-                style={[
-                  styles.timelineDot,
-                  { backgroundColor: colors.textSecondary },
-                ]}
-              />
-              <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>Submitted</Text>
-                <Text style={styles.timelineDate}>
-                  {formatDate(letter.submittedAt)}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.timelineLine} />
-
-            <View style={styles.timelineItem}>
-              <View
-                style={[styles.timelineDot, { backgroundColor: colors.info }]}
-              />
-              <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>Assigned</Text>
-                <Text style={styles.timelineDate}>
-                  {formatDate(letter.assignedAt)}
-                </Text>
-              </View>
-            </View>
-
-            {letter.pickedUpAt && (
-              <>
-                <View style={styles.timelineLine} />
-                <View style={styles.timelineItem}>
-                  <View
-                    style={[
-                      styles.timelineDot,
-                      { backgroundColor: colors.warning },
-                    ]}
-                  />
-                  <View style={styles.timelineContent}>
-                    <Text style={styles.timelineTitle}>Picked Up</Text>
-                    <Text style={styles.timelineDate}>
-                      {formatDate(letter.pickedUpAt)}
-                    </Text>
-                  </View>
-                </View>
-              </>
-            )}
-
-            {letter.completedAt && (
-              <>
-                <View style={styles.timelineLine} />
-                <View style={styles.timelineItem}>
-                  <View
-                    style={[
-                      styles.timelineDot,
-                      {
-                        backgroundColor:
-                          letter.status === "delivered"
-                            ? colors.success
-                            : colors.danger,
-                      },
-                    ]}
-                  />
-                  <View style={styles.timelineContent}>
-                    <Text style={styles.timelineTitle}>
-                      {letter.status === "delivered" ? "Delivered" : "Returned"}
-                    </Text>
-                    <Text style={styles.timelineDate}>
-                      {formatDate(letter.completedAt)}
-                    </Text>
-                  </View>
-                </View>
-              </>
-            )}
-          </View>
-        </View>
-
-        {/* Notes */}
-        {letter.notes && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notes</Text>
-            <View style={styles.notesCard}>
+            </>
+          ) : (
+            <View style={styles.noCourier}>
               <Ionicons
-                name="document-text-outline"
-                size={20}
-                color={colors.textSecondary}
+                name="alert-circle-outline"
+                size={24}
+                color={colors.warning}
               />
-              <Text style={styles.notesText}>{letter.notes}</Text>
+              <Text style={styles.noCourierText}>No courier assigned yet</Text>
             </View>
-          </View>
-        )}
+          )}
+        </TouchableOpacity>
 
-        {/* POD Info */}
-        {letter.pod && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Proof of Delivery</Text>
-            <View style={styles.podCard}>
-              <View style={styles.podRow}>
-                <Text style={styles.podLabel}>Received By</Text>
-                <Text style={styles.podValue}>{letter.pod.recipientName}</Text>
+        {/* POD Section */}
+        {letter.status === "Delivered" && (
+          <View style={styles.podSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Proof of Delivery (POD)</Text>
+              <View style={styles.successBadge}>
+                <Ionicons
+                  name="checkmark-circle"
+                  size={14}
+                  color={colors.success}
+                />
+                <Text style={styles.successBadgeText}>Verified</Text>
               </View>
-              {letter.pod.recipientPhone && (
-                <View style={styles.podRow}>
-                  <Text style={styles.podLabel}>Phone</Text>
-                  <Text style={styles.podValue}>
-                    {letter.pod.recipientPhone}
+            </View>
+
+            <View style={styles.podCard}>
+              {podUrl ? (
+                <Image
+                  source={{ uri: podUrl }}
+                  style={styles.podImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.noImagePlaceholder}>
+                  <Ionicons
+                    name="image-outline"
+                    size={48}
+                    color={colors.border}
+                  />
+                  <Text style={styles.noImageText}>
+                    POD image not available
                   </Text>
                 </View>
               )}
-              <View style={styles.podRow}>
-                <Text style={styles.podLabel}>Timestamp</Text>
-                <Text style={styles.podValue}>
-                  {formatDate(letter.pod.timestamp)}
+              <View style={styles.podMeta}>
+                <Text style={styles.podMetaTitle}>
+                  Recipient: {letter.recipientName}
                 </Text>
-              </View>
-              {letter.pod.notes && (
-                <View style={styles.podRow}>
-                  <Text style={styles.podLabel}>Notes</Text>
-                  <Text style={styles.podValue}>{letter.pod.notes}</Text>
-                </View>
-              )}
-              <View style={styles.podSignature}>
-                <Ionicons name="create" size={20} color={colors.success} />
-                <Text style={styles.signatureText}>Signature Captured</Text>
+                <Text style={styles.podMetaText}>
+                  Delivered on{" "}
+                  {letter.deliveredAt
+                    ? format(new Date(letter.deliveredAt), "PPP p")
+                    : letter.updatedAt
+                      ? format(new Date(letter.updatedAt), "PPP p")
+                      : "Recently"}
+                </Text>
               </View>
             </View>
           </View>
         )}
 
-        <View style={{ height: 24 }} />
+        {/* Action Buttons (For Admin Approval) */}
+        {letter.status === "Pending_Approval" && (
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.approveBtn]}
+              onPress={handleApprove}
+              disabled={isActionLoading}
+            >
+              {isActionLoading ? (
+                <ActivityIndicator color={colors.white} />
+              ) : (
+                <>
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={20}
+                    color={colors.white}
+                  />
+                  <Text style={styles.btnText}>Approve Letter</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.rejectBtn]}
+              onPress={() => {}} // Handle Reject
+              disabled={isActionLoading}
+            >
+              <Ionicons name="close-circle" size={20} color={colors.danger} />
+              <Text style={[styles.btnText, { color: colors.danger }]}>
+                Reject
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#F8FAFC",
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: colors.textSecondary,
+    fontSize: 14,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingBottom: 20,
   },
-  backIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.card,
-    justifyContent: "center",
+  navBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+  backBtn: {
+    padding: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: colors.text,
-  },
-  mainCard: {
-    backgroundColor: colors.card,
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-  },
-  trackingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  trackingId: {
-    fontSize: 18,
+    color: colors.white,
+    fontSize: 16,
     fontWeight: "700",
-    color: colors.primary,
   },
-  statusBadge: {
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  badgeRow: {
+    flexDirection: "row",
+    paddingHorizontal: 24,
+    marginTop: 20,
+    gap: 10,
+  },
+  badge: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.white,
-  },
-  letterTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.text,
-    marginBottom: 12,
-  },
-  priorityRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  priorityBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
     borderRadius: 8,
   },
-  priorityText: {
+  badgeText: {
     fontSize: 12,
-    fontWeight: "600",
-  },
-  scheduleId: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  section: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.textSecondary,
-    marginBottom: 10,
+    fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.5,
   },
   infoCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.white,
+    marginHorizontal: 20,
+    marginTop: 20,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  infoSection: {
+    paddingVertical: 4,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: colors.textSecondary,
+    marginBottom: 16,
+    letterSpacing: 1,
   },
   infoRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  infoIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary + "15",
-    justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
-  },
-  infoContent: {
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 2,
+    gap: 12,
+    marginBottom: 10,
   },
   infoValue: {
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: "700",
     color: colors.text,
-    fontWeight: "500",
   },
-  liabilityCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  liabilityMain: {
-    flex: 1,
-  },
-  liabilityLabel: {
-    fontSize: 12,
+  addressText: {
+    fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 4,
+    marginLeft: 30,
+    lineHeight: 20,
   },
-  liabilityAmount: {
-    fontSize: 24,
+  lgaText: {
+    fontSize: 13,
     fontWeight: "700",
     color: colors.primary,
+    marginLeft: 30,
+    marginTop: 4,
   },
-  liabilityYear: {
+  divider: {
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginVertical: 20,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    paddingLeft: 20,
-    borderLeftWidth: 1,
-    borderLeftColor: colors.border,
+    paddingHorizontal: 24,
+    marginTop: 32,
+    marginBottom: 16,
   },
-  yearLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
-  yearValue: {
-    fontSize: 20,
-    fontWeight: "700",
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "800",
     color: colors.text,
   },
-  courierCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
+  assignmentCard: {
+    backgroundColor: colors.white,
+    marginHorizontal: 20,
     padding: 16,
+    borderRadius: 20,
     flexDirection: "row",
     alignItems: "center",
+    gap: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   courierAvatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 16,
     backgroundColor: colors.primary + "15",
-    justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.primary,
   },
   courierInfo: {
     flex: 1,
   },
   courierName: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
     color: colors.text,
   },
-  courierDetail: {
+  courierLabel: {
     fontSize: 12,
     color: colors.textSecondary,
     marginTop: 2,
   },
-  courierPhone: {
-    fontSize: 12,
-    color: colors.primary,
-    marginTop: 2,
-  },
-  timelineCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-  },
-  timelineItem: {
+  noCourier: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  timelineDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  timelineContent: {
-    flex: 1,
-  },
-  timelineTitle: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: colors.text,
-  },
-  timelineDate: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  timelineLine: {
-    width: 2,
-    height: 24,
-    backgroundColor: colors.border,
-    marginLeft: 5,
-    marginVertical: 4,
-  },
-  notesCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "flex-start",
     gap: 12,
   },
-  notesText: {
-    flex: 1,
+  noCourierText: {
     fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
+  podSection: {
+    marginTop: 10,
+  },
+  successBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ECFDF5",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  successBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.success,
   },
   podCard: {
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    padding: 16,
+    marginHorizontal: 20,
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
-  podRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
+  podImage: {
+    width: "100%",
+    height: 250,
   },
-  podLabel: {
+  noImagePlaceholder: {
+    width: "100%",
+    height: 200,
+    backgroundColor: "#F1F5F9",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noImageText: {
+    marginTop: 12,
+    color: colors.textSecondary,
+    fontSize: 14,
+  },
+  podMeta: {
+    padding: 20,
+    backgroundColor: colors.white,
+  },
+  podMetaTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.text,
+  },
+  podMetaText: {
     fontSize: 13,
     color: colors.textSecondary,
-  },
-  podValue: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: "500",
-  },
-  podSignature: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
     marginTop: 4,
   },
-  signatureText: {
-    fontSize: 13,
-    color: colors.success,
-    fontWeight: "500",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    fontSize: 18,
-    color: colors.textSecondary,
-    marginBottom: 16,
-  },
-  backButton: {
-    backgroundColor: colors.primary,
+  actionRow: {
+    flexDirection: "row",
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    marginTop: 40,
+    gap: 12,
   },
-  backButtonText: {
+  actionBtn: {
+    flex: 1,
+    height: 54,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  approveBtn: {
+    backgroundColor: colors.primary,
+  },
+  rejectBtn: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: "#FEE2E2",
+  },
+  btnText: {
+    fontSize: 15,
+    fontWeight: "700",
     color: colors.white,
-    fontWeight: "600",
   },
 });

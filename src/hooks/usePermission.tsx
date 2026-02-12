@@ -3,7 +3,6 @@ import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { UserRole } from "../types";
 
-
 export interface UsePermissionOptions {
   /**
    * Required roles to access this screen.
@@ -67,7 +66,7 @@ export function usePermission(options: UsePermissionOptions = {}) {
         `[Permission] Access denied: requireAuth=true but not authenticated`,
       );
       onPermissionDenied?.();
-      router.replace(redirectTo);
+      router.replace(redirectTo as any);
       return;
     }
 
@@ -82,7 +81,7 @@ export function usePermission(options: UsePermissionOptions = {}) {
           `[Permission] Access denied: user role '${userRole}' not in required roles [${requiredRoles.join(", ")}]`,
         );
         onPermissionDenied?.();
-        router.replace(redirectTo);
+        router.replace(redirectTo as any);
         return;
       }
     }

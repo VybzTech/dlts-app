@@ -104,7 +104,7 @@ export default function AuthLoginScreen() {
 
       // If courier, fetch their letters
       if (
-        response.user.role === "courier" 
+        response.user.role === "courier"
         // response.user.role === "Courier"
       ) {
         try {
@@ -162,6 +162,7 @@ export default function AuthLoginScreen() {
           isLoading={isLoading}
           handleLogin={handleLogin}
           clearFieldError={clearFieldError}
+          onForgotPassword={() => router.push("/(auth)/reset-password")}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

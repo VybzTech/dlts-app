@@ -1,13 +1,17 @@
 export type LetterStatus =
-  | "Registered"
+  | "Pending_Approval"
   | "Approved"
-  | "Allocated"
-  | "InTransit"
+  | "Assigned"
+  | "In_Transit"
   | "Delivered"
   | "Undelivered"
-  | "Rejected";
+  | "Rejected"
+  | "Allocated"
+  | "InTransit"
+  | "Pending"
+  | "Registered";
 
-export type LetterPriority = "Low" | "Medium" | "High";
+export type LetterPriority = "NORMAL" | "HIGH";
 
 export interface LetterTimeline {
   id: string;
@@ -57,6 +61,11 @@ export interface Letter {
   liabilityYear: string;
   notes?: string;
   podImage?: string;
+  deliveredAt?: string;
+  receivedBy?: string;
+  podImagePath?: string;
+  assignedAt?: string;
+  approvedAt?: string;
   createdAt: string;
   updatedAt: string;
   senderDirectorate?: Directorate;
@@ -80,5 +89,6 @@ export interface LetterActionPayload {
   reason?: string;
   notes?: string;
   podImage?: string;
+  podImageUri?: string;
   recipientName?: string;
 }

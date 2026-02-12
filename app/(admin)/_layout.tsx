@@ -22,9 +22,10 @@ export default function AdminLayout() {
           paddingBottom: 18,
           paddingTop: 8,
         },
-        headerStyle: { backgroundColor: colors.primary },
-        headerTintColor: colors.white,
-        headerTitleStyle: { fontWeight: "600" },
+        headerShown: false,
+        // headerStyle: { backgroundColor: colors.primary },
+        // headerTintColor: colors.white,
+        // headerTitleStyle: { fontWeight: "600" },
       }}
     >
       <Tabs.Screen
@@ -52,6 +53,20 @@ export default function AdminLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="letter/[id]"
+        options={{
+          href: null,
+          headerTitle: "Letter Details",
+        }}
+      />
+      <Tabs.Screen
+        name="courier/[id]"
+        options={{
+          href: null,
+          headerTitle: "Courier Details",
         }}
       />
     </Tabs>

@@ -15,9 +15,20 @@ const getBaseUrl = () => {
   return "http://192.168.137.1:9989/api/v1";
 };
 
-const BASE_URL = getBaseUrl();
+export const BASE_URL = getBaseUrl();
+export const getFullImageUrl = (path: string | undefined) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  // Backend serves uploads at /uploads
+  const cleanPath = path.startsWith("/") ? path.substring(1) : path;
+  // If the path already includes 'uploads/', we don't need to add it again
+  // but looking at express.static('uploads'), if the path is 'uploads/pod/xyz.jpg',
+  // it would be available at BASE_URL_HOST/uploads/pod/xyz.jpg
+  const host = BASE_URL.replace("/api/v1", "");
+  return `${host}/${cleanPath}`;
+};
 
-const   axiosInstance = axios.create({
+const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: {

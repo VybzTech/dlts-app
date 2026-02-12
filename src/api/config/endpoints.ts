@@ -4,9 +4,11 @@ export const ENDPOINTS = {
     SIGNUP: "/auth/signup",
   },
   COURIER: {
+    LIST: "/courier",
     CREATE: "/courier/",
     ASSIGN: "/courier/assign",
     ACKNOWLEDGE_POD: "/courier/acknowledge-pod",
+    VIEW: (id: string) => `/courier/${id}`,
   },
   SCHEDULES: {
     LIST: "/schedules/",
@@ -25,5 +27,8 @@ export const ENDPOINTS = {
     UNDELIVERED: (id: string) => `/letter/${id}/undelivered`,
     APPROVE: (id: string) => `/letter/${id}/approve`,
     REJECT: (id: string) => `/letter/${id}/reject`,
+    ALLOCATE: (id: string, courierId: string) =>
+      `/letter/${id}/allocate/${courierId}`,
+    AUTO_ALLOCATE: "/letter/auto-allocate",
   },
 };

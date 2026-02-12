@@ -4,7 +4,7 @@ import type { Delivery } from "@/src/types";
 interface MgtState {
   submittedLetters: Delivery[];
   draftLetters: Delivery[];
-  
+
   setSubmittedLetters: (letters: Delivery[]) => void;
   setDraftLetters: (letters: Delivery[]) => void;
   addDraftLetter: (letter: Delivery) => void;
@@ -40,9 +40,14 @@ export const useMgtStore = create<MgtState>((set, get) => ({
     const { submittedLetters } = get();
     return {
       submitted: submittedLetters.length,
-      pending: submittedLetters.filter((l) => l.status === "pending_approval").length,
+      pending: submittedLetters.filter(
+        (l) =>
+          l.status === "Pending_Approval" || l.status === "pending_approval",
+      ).length,
       completed: submittedLetters.filter((l) =>
-        ["delivered", "returned"].includes(l.status)
+        ["Delivered", "delivered", "Undelivered", "returned"].includes(
+          l.status,
+        ),
       ).length,
     };
   },

@@ -51,7 +51,7 @@ export type UserRole = "courier" | "admin" | "mgt";
 export interface User {
   id: string;
   email: string;
-  fullName: string;
+  name: string;
   phone?: string;
   staffId: string;
   unit: string;

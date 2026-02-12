@@ -42,19 +42,19 @@ export default function RootLayout() {
         <Stack.Screen
           name="(courier)"
           options={{
-            gestureEnabled: false,
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="(admin)"
           options={{
-            gestureEnabled: false,
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="(mgt)"
           options={{
-            gestureEnabled: false,
+            headerShown: false,
           }}
         />
       </Stack>

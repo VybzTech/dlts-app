@@ -21,6 +21,8 @@ interface LetterState {
   markAsInTransit: (id: string) => Promise<void>;
   markAsDelivered: (id: string, payload: any) => Promise<void>;
   markAsUndelivered: (id: string, reason: string) => Promise<void>;
+  approveLetter: (id: string) => Promise<void>;
+  rejectLetter: (id: string, reason?: string) => Promise<void>;
   refreshLetters: () => Promise<void>;
   getStats: () => {
     total: number;
@@ -80,10 +82,23 @@ export const useLetterStore = create<LetterState>()(
 
       setFilter: (filter) => {
         const { letters } = get();
-        const filtered =
-          filter === "all"
-            ? letters
-            : letters.filter((l) => l.status === filter);
+        let filtered = letters;
+
+        if (filter !== "all") {
+          if (filter === ("Pending" as any)) {
+            filtered = letters.filter((l) =>
+              [
+                "Pending_Approval",
+                "Registered",
+                "Approved",
+                "Assigned",
+              ].includes(l.status),
+            );
+          } else {
+            filtered = letters.filter((l) => l.status === filter);
+          }
+        }
+
         set({
           currentFilter: filter,
           filteredLetters: filtered,
@@ -97,10 +112,10 @@ export const useLetterStore = create<LetterState>()(
           // Update local state
           set((state) => ({
             letters: state.letters.map((l) =>
-              l.id === id ? { ...l, status: "InTransit" } : l,
+              l.id === id ? { ...l, status: "In_Transit" } : l,
             ),
             filteredLetters: state.filteredLetters.map((l) =>
-              l.id === id ? { ...l, status: "InTransit" } : l,
+              l.id === id ? { ...l, status: "In_Transit" } : l,
             ),
           }));
         } catch (error: any) {
@@ -143,6 +158,40 @@ export const useLetterStore = create<LetterState>()(
         }
       },
 
+      approveLetter: async (id: string) => {
+        try {
+          await letterService.approveLetter(id);
+          set((state) => ({
+            letters: state.letters.map((l) =>
+              l.id === id ? { ...l, status: "Approved" } : l,
+            ),
+            filteredLetters: state.filteredLetters.map((l) =>
+              l.id === id ? { ...l, status: "Approved" } : l,
+            ),
+          }));
+        } catch (error: any) {
+          set({ error: error.message || "Failed to approve letter" });
+          throw error;
+        }
+      },
+
+      rejectLetter: async (id: string, reason?: string) => {
+        try {
+          await letterService.rejectLetter(id, reason);
+          set((state) => ({
+            letters: state.letters.map((l) =>
+              l.id === id ? { ...l, status: "Rejected" } : l,
+            ),
+            filteredLetters: state.filteredLetters.map((l) =>
+              l.id === id ? { ...l, status: "Rejected" } : l,
+            ),
+          }));
+        } catch (error: any) {
+          set({ error: error.message || "Failed to reject letter" });
+          throw error;
+        }
+      },
+
       refreshLetters: async () => {
         const { currentFilter, currentPage } = get();
         const statusFilter =
@@ -156,11 +205,15 @@ export const useLetterStore = create<LetterState>()(
           total: letters.length,
           pending: letters.filter(
             (l) =>
+              l.status === "Pending_Approval" ||
               l.status === "Registered" ||
               l.status === "Approved" ||
+              l.status === "Assigned" ||
               l.status === "Allocated",
           ).length,
-          inTransit: letters.filter((l) => l.status === "InTransit").length,
+          inTransit: letters.filter(
+            (l) => l.status === "InTransit" || l.status === "In_Transit",
+          ).length,
           delivered: letters.filter((l) => l.status === "Delivered").length,
           undelivered: letters.filter(
             (l) => l.status === "Undelivered" || l.status === "Rejected",

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Letter, LetterStatus } from "@/src/types/letter.types";
 import { colors } from "@/src/styles/theme/colors";
 
@@ -14,6 +8,7 @@ interface LetterCardProps {
   onMarkInTransit?: () => void;
   onMarkDelivered?: () => void;
   onMarkUndelivered?: () => void;
+  onPress?: () => void;
   isLoading?: boolean;
 }
 
@@ -29,7 +24,7 @@ const getStatusColor = (status: LetterStatus) => {
       return colors.success;
     case "Undelivered":
     case "Rejected":
-      return colors.error;
+      return colors.danger; // Fixed from .error
     default:
       return colors.text;
   }
@@ -76,6 +71,7 @@ export const LetterCard: React.FC<LetterCardProps> = ({
   onMarkInTransit,
   onMarkDelivered,
   onMarkUndelivered,
+  onPress,
   isLoading = false,
 }) => {
   const statusColor = getStatusColor(letter.status);
@@ -84,56 +80,54 @@ export const LetterCard: React.FC<LetterCardProps> = ({
 
   return (
     <View style={styles.card}>
-      {/* Header with Tracking ID and Status */}
-      <View style={styles.header}>
-        <View style={styles.trackingSection}>
-          <Text style={styles.trackingId}>{letter.trackingId}</Text>
-          <Text style={styles.priority}>{letter.priority}</Text>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <View style={styles.header}>
+          <View style={styles.trackingSection}>
+            <Text style={styles.trackingId}>{letter.trackingId}</Text>
+            <Text style={styles.priority}>{letter.priority}</Text>
+          </View>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: statusColor + "18", borderColor: statusColor },
+            ]}
+          >
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {statusLabel}
+            </Text>
+          </View>
         </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: statusColor + "20", borderColor: statusColor },
-          ]}
-        >
-          <Text style={[styles.statusText, { color: statusColor }]}>
-            {statusLabel}
-          </Text>
-        </View>
-      </View>
-
-      {/* Subject and Details */}
-      <View style={styles.content}>
         <Text style={styles.subject}>{letter.subject}</Text>
 
-        <View style={styles.detailsGrid}>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Recipient</Text>
-            <Text style={styles.detailValue}>{letter.recipientName}</Text>
+        {/* <View style={styles.content}>
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Recipient</Text>
+              <Text style={styles.detailValue}>{letter.recipientName}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>LGA</Text>
+              <Text style={styles.detailValue}>{letter.lgaAddress}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Liability</Text>
+              <Text style={styles.detailValue}>₦{letter.liabilityValue}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Year</Text>
+              <Text style={styles.detailValue}>{letter.liabilityYear}</Text>
+            </View>
           </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>LGA</Text>
-            <Text style={styles.detailValue}>{letter.lgaAddress}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Liability</Text>
-            <Text style={styles.detailValue}>₦{letter.liabilityValue}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Year</Text>
-            <Text style={styles.detailValue}>{letter.liabilityYear}</Text>
-          </View>
-        </View>
 
-        {letter.notes && (
-          <View style={styles.notesContainer}>
-            <Text style={styles.notesLabel}>Notes</Text>
-            <Text style={styles.notesText}>{letter.notes}</Text>
-          </View>
-        )}
-      </View>
+          {letter.notes && (
+            <View style={styles.notesContainer}>
+              <Text style={styles.notesLabel}>Notes</Text>
+              <Text style={styles.notesText}>{letter.notes}</Text>
+            </View>
+          )}
+        </View> */}
+      </TouchableOpacity>
 
-      {/* Action Buttons */}
       {availableActions.length > 0 && (
         <View style={styles.actions}>
           {availableActions.includes("inTransit") && (
@@ -172,15 +166,15 @@ export const LetterCard: React.FC<LetterCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 16,
     marginHorizontal: 16,
     marginVertical: 8,
     padding: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   header: {
     flexDirection: "row",
@@ -193,38 +187,40 @@ const styles = StyleSheet.create({
   },
   trackingId: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.text,
-    marginBottom: 4,
+    // marginBottom: 4,
   },
   priority: {
-    fontSize: 12,
+    fontSize: 11,
     color: colors.textSecondary,
-    fontWeight: "500",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
     borderWidth: 1,
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "700",
   },
   content: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   subject: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "600",
     color: colors.text,
-    marginBottom: 12,
+    marginBottom: 3,
   },
   detailsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   detailItem: {
     width: "50%",
@@ -237,7 +233,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   detailValue: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.text,
     fontWeight: "600",
   },
@@ -245,7 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     padding: 10,
     borderRadius: 8,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
     borderLeftColor: colors.info,
   },
   notesLabel: {
@@ -257,19 +253,20 @@ const styles = StyleSheet.create({
   notesText: {
     fontSize: 12,
     color: colors.text,
-    lineHeight: 16,
+    lineHeight: 18,
   },
   actions: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
+    marginTop: 8,
   },
   actionBtn: {
     flex: 1,
-    minWidth: "48%",
-    paddingVertical: 10,
+    minWidth: "45%",
+    paddingVertical: 12,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -280,11 +277,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
   },
   dangerBtn: {
-    backgroundColor: colors.error,
+    backgroundColor: colors.danger, // Fixed from .error
   },
   actionBtnText: {
     color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "700",
   },
 });

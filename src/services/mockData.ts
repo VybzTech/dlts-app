@@ -243,7 +243,7 @@ export function generateMockDeliveries(count: number = 100): Delivery[] {
       );
       delivery.completedAt = completedTime.toISOString();
 
-      if (status === "delivered") {
+      if (status === "completed") {
         delivery.pod = createMockPOD(id, contactPerson, contactPhone);
       }
     }

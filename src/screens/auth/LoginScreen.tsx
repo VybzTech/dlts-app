@@ -23,6 +23,7 @@ interface LoginTools {
   isLoading: boolean;
   clearFieldError: (val: any) => void;
   handleLogin: () => void;
+  onForgotPassword: () => void;
 }
 
 const LoginScreen = ({
@@ -36,6 +37,7 @@ const LoginScreen = ({
   isLoading,
   handleLogin,
   clearFieldError,
+  onForgotPassword,
 }: LoginTools) => {
   return (
     <View>
@@ -144,6 +146,18 @@ const LoginScreen = ({
             </TouchableOpacity>
           </View>
         </View>
+
+        <TouchableOpacity
+          style={{ alignSelf: "flex-end", paddingVertical: 8 }}
+          onPress={onForgotPassword}
+        >
+          <Text
+            style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}
+          >
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
+
         {/* Login Button */}
         <TouchableOpacity
           onPress={handleLogin}

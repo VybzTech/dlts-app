@@ -56,10 +56,22 @@ export const letterService = {
     if (payload.notes) {
       formData.append("notes", payload.notes);
     }
-    if (payload.podImage) {
-      // Convert base64 to blob
+    if (payload.podImageUri) {
+      const uri = payload.podImageUri;
+      const filename = uri.split("/").pop() || "pod.jpg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+      formData.append("pod_image", {
+        uri,
+        name: filename,
+        type,
+      } as any);
+    } else if (payload.podImage) {
+      // Fallback for base64 if needed
       const byteString = atob(payload.podImage.split(",")[1]);
-      const mimeString = payload.podImage.split(",")[0].match(/:(.*?);/)[1];
+      const mimeMatch = payload.podImage.split(",")[0].match(/:(.*?);/);
+      const mimeString = mimeMatch ? mimeMatch[1] : "image/jpeg";
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
@@ -92,6 +104,37 @@ export const letterService = {
         reason: payload.reason,
       },
     );
+    return response.data;
+  },
+
+  // Admin: Approve letter
+  approveLetter: async (id: string): Promise<Letter> => {
+    const response = await axiosInstance.patch<Letter>(
+      ENDPOINTS.LETTERS.APPROVE(id),
+    );
+    return response.data;
+  },
+
+  // Admin: Reject letter
+  rejectLetter: async (id: string, reason?: string): Promise<Letter> => {
+    const response = await axiosInstance.patch<Letter>(
+      ENDPOINTS.LETTERS.REJECT(id),
+      { reason },
+    );
+    return response.data;
+  },
+
+  // Admin: Allocate letter to courier
+  allocateLetter: async (id: string, courierId: string): Promise<Letter> => {
+    const response = await axiosInstance.post<Letter>(
+      ENDPOINTS.LETTERS.ALLOCATE(id, courierId),
+    );
+    return response.data;
+  },
+
+  // Admin: Auto-allocate letters
+  autoAllocateLetters: async (): Promise<any> => {
+    const response = await axiosInstance.post(ENDPOINTS.LETTERS.AUTO_ALLOCATE);
     return response.data;
   },
 };
